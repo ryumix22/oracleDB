@@ -75,6 +75,7 @@ namespace oracleDB
                 catch (OracleException)
                 {
                     MessageBox.Show("No connection with DataBase");
+                    throw new ApplicationException("No connection with DataBase");
                 }
             }
         }
@@ -94,7 +95,7 @@ namespace oracleDB
                 catch (OracleException)
                 {
                     MessageBox.Show("No connection with DataBase");
-                    return null;
+                    throw new ApplicationException("No connection with DataBase");
                 }
             }
         }
@@ -118,7 +119,8 @@ namespace oracleDB
                 }
                 catch (OracleException)
                 {
-                    MessageBox.Show("No connection with DataBase, can't fill ComboBox");
+                    MessageBox.Show("No connection with DataBase");
+                    throw new ApplicationException("No connection with DataBase");
                 }
             }
         }
@@ -195,7 +197,7 @@ namespace oracleDB
             catch (OracleException)
             {
                 MessageBox.Show("No connection with DataBase");
-                return null;
+                throw new ApplicationException("No connection with DataBase");
             }        
         }
 
@@ -208,6 +210,7 @@ namespace oracleDB
             catch (OracleException)
             {
                 MessageBox.Show("No connection with DataBase");
+                throw new ApplicationException("No connection with DataBase");
             }
         }
     }

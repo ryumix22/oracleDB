@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Oracle.ManagedDataAccess.Client;
+using oracleDB.crypto;
 
 namespace oracleDB
 {
@@ -23,24 +24,38 @@ namespace oracleDB
         {
             if (LoginBox.Text != "" && PassBox.Text != "")
             {
-
-                OracleDataReader dr = DBUtils.ReturnDataReaderForLogin(LoginBox.Text, PassBox.Text);
+                Crypto.hashPassword(LoginBox.Text);
+                OracleDataReader dr = DBUtils.ReturnDataReaderForLogin(LoginBox.Text);
                 if (dr.HasRows)
                 {
-                    DBUtils.PushConnectionClose();
-                    Form nextform = new MainForm();
-                    nextform.Show();
-                    nextform.FormClosed += new FormClosedEventHandler((o, a) =>
+                    dr.Read();
+                    string pass = dr.GetString(1);
+                    if (Crypto.checkPassword(pass, PassBox.Text))
                     {
-                        this.Close();
-                    });
-                    this.Hide();
+                        DBUtils.PushConnectionClose();
+                        Form nextform = new MainForm();
+                        nextform.Show();
+                        nextform.FormClosed += new FormClosedEventHandler((o, a) =>
+                        {
+                            this.Close();
+                        });
+                        this.Hide();
+                    }
+                    else
+                    {
+                        DBUtils.PushConnectionClose();
+                        MessageBox.Show("Wrong password");
+                    }
                 }
                 else
                 {
                     DBUtils.PushConnectionClose();
-                    MessageBox.Show("no such user");
+                    MessageBox.Show("No such user");
                 }
+            }
+            else
+            {
+                MessageBox.Show("Please, enter login and password");
             }
         }
 

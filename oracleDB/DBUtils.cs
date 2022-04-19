@@ -10,9 +10,9 @@ using Oracle.ManagedDataAccess.Types;
 
 namespace oracleDB
 {
-    class DBUtils
+    public class DBUtils
     {
-        public static OracleConnection con;
+        public static OracleConnection con { get; set; }
 
         private static OracleConnection getDBConnection(string host, int port, string sid, string user, string password)
         {
@@ -35,6 +35,7 @@ namespace oracleDB
 
         public static void CreateConnection()
         {
+            //string host = "192.168.56.101";
             string host = "127.0.0.1";
             int port = 1521;
             string sid = "xe";
@@ -46,10 +47,18 @@ namespace oracleDB
 
         public static OracleDataAdapter SelectAdapter(string command)
         {
-            con.Open();
-            OracleDataAdapter adapter = new OracleDataAdapter(command, con);
-            con.Close();
-            return adapter;
+            try
+            {
+                con.Open();
+                OracleDataAdapter adapter = new OracleDataAdapter(command, con);
+                con.Close();
+                return adapter;
+            }
+            catch (OracleException)
+            {
+                MessageBox.Show("No connection with DataBase");
+                throw new ApplicationException("No connection with DataBase");
+            }
         }
 
         public static void ExecuteCommand(string command, params object[] args)
@@ -57,111 +66,149 @@ namespace oracleDB
             string com = String.Format(command, args);
             using (OracleCommand cmd = new OracleCommand(com, con))
             {
-                con.Open();
-                cmd.ExecuteNonQuery();
-                con.Close();
+                try
+                {
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+                }
+                catch (OracleException)
+                {
+                    MessageBox.Show("No connection with DataBase");
+                }
             }
         }
 
-        public static OracleDataReader ReturnDataReaderForLogin(string login, string pass)
+        public static OracleDataReader ReturnDataReaderForLogin(string login)
         {
-            OracleCommand cmd = new OracleCommand();
-            OracleDataReader dr;
-            cmd.CommandText = String.Format("select * from users_table where username = '{0}' and user_password = '{1}'", login, pass);
-            cmd.Connection = con;
-            con.Open();
-            dr = cmd.ExecuteReader();
-            return dr;
+            string com = String.Format("select * from users_table where username = '{0}'", login);
+            
+            using (OracleCommand cmd = new OracleCommand(com, con))
+            {
+                try
+                {
+                    con.Open();
+                    OracleDataReader dr = cmd.ExecuteReader();
+                    return dr;
+                }
+                catch (OracleException)
+                {
+                    MessageBox.Show("No connection with DataBase");
+                    return null;
+                }
+            }
         }
 
         public static void ExecuteReaderToComboBox(string command, ComboBox cb)
         {
             using (OracleCommand cmd = new OracleCommand(command, con))
             {
-                con.Open();
-                using (OracleDataReader dr = cmd.ExecuteReader())
+                try
                 {
-                    while(dr.Read())
+                    con.Open();
+                    using (OracleDataReader dr = cmd.ExecuteReader())
                     {
-                        string viewName = dr["view_name"].ToString();
-                        cb.Items.Add(viewName);
+                        while (dr.Read())
+                        {
+                            string viewName = dr["view_name"].ToString();
+                            cb.Items.Add(viewName);
+                        }
                     }
+                    con.Close();
                 }
-                con.Close();
+                catch (OracleException)
+                {
+                    MessageBox.Show("No connection with DataBase, can't fill ComboBox");
+                }
             }
         }
 
         public static string GetDbmsOutputLine(string nameOfProcedure, bool customCommand=false)
         {
-            con.Open();
-            string command;
-            if (!customCommand)
+            try
             {
-                command = "begin " + nameOfProcedure + "; end;";
-            }
-            else
-            {
-                command = nameOfProcedure;
-            }
-            using (OracleCommand cmd = new OracleCommand(command, con))
-            {
-                cmd.CommandText = "BEGIN DBMS_OUTPUT.ENABLE(NULL); END;";
-                cmd.CommandType = CommandType.Text;
-                cmd.ExecuteNonQuery();
-
-                cmd.CommandText = command;
-                cmd.CommandType = CommandType.Text;
-                var res = cmd.ExecuteNonQuery();
-
-                cmd.CommandText = "BEGIN DBMS_OUTPUT.GET_LINES(:outString, :numLines); END;";
-                cmd.CommandType = CommandType.Text;
-
-                cmd.Parameters.Clear();
-
-                cmd.Parameters.Add(new OracleParameter("outString", OracleDbType.Varchar2, int.MaxValue, ParameterDirection.Output));
-                cmd.Parameters["outString"].CollectionType = OracleCollectionType.PLSQLAssociativeArray;
-                cmd.Parameters["outString"].Size = command.Length;
-                cmd.Parameters["outString"].ArrayBindSize = new int[command.Length];
-
-                // set bind size for each array element
-                for (int i = 0; i < command.Length; i++)
+                con.Open();
+                string command;
+                if (!customCommand)
                 {
-                    cmd.Parameters["outString"].ArrayBindSize[i] = 32000;
+                    command = "begin " + nameOfProcedure + "; end;";
                 }
-
-
-                cmd.Parameters.Add(new OracleParameter("numLines", OracleDbType.Int32, ParameterDirection.InputOutput));
-                cmd.Parameters["numLines"].Value = 10; // Get 10 lines
-                cmd.ExecuteNonQuery();
-
-                int numLines = Convert.ToInt32(cmd.Parameters["numLines"].Value.ToString());
-                string outString = string.Empty;
-
-                // Try to get more lines until there are zero left
-                while (numLines > 0)
+                else
                 {
-                    for (int i = 0; i < numLines; i++)
-                    {
-                        // use proper indexing here
-                        //OracleString s = (OracleString)cmd.Parameters["outString"].Value;
-                        OracleString s = ((OracleString[])cmd.Parameters["outString"].Value)[i];
-                        outString += s.ToString();
+                    command = nameOfProcedure;
+                }
+                using (OracleCommand cmd = new OracleCommand(command, con))
+                {
+                    cmd.CommandText = "BEGIN DBMS_OUTPUT.ENABLE(NULL); END;";
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
 
-                        // add new line just for formatting
-                        outString += "\r\n";
+                    cmd.CommandText = command;
+                    cmd.CommandType = CommandType.Text;
+                    var res = cmd.ExecuteNonQuery();
+
+                    cmd.CommandText = "BEGIN DBMS_OUTPUT.GET_LINES(:outString, :numLines); END;";
+                    cmd.CommandType = CommandType.Text;
+
+                    cmd.Parameters.Clear();
+
+                    cmd.Parameters.Add(new OracleParameter("outString", OracleDbType.Varchar2, int.MaxValue, ParameterDirection.Output));
+                    cmd.Parameters["outString"].CollectionType = OracleCollectionType.PLSQLAssociativeArray;
+                    cmd.Parameters["outString"].Size = command.Length;
+                    cmd.Parameters["outString"].ArrayBindSize = new int[command.Length];
+
+                    // set bind size for each array element
+                    for (int i = 0; i < command.Length; i++)
+                    {
+                        cmd.Parameters["outString"].ArrayBindSize[i] = 32000;
                     }
 
+
+                    cmd.Parameters.Add(new OracleParameter("numLines", OracleDbType.Int32, ParameterDirection.InputOutput));
+                    cmd.Parameters["numLines"].Value = 10; // Get 10 lines
                     cmd.ExecuteNonQuery();
-                    numLines = Convert.ToInt32(cmd.Parameters["numLines"].Value.ToString());
+
+                    int numLines = Convert.ToInt32(cmd.Parameters["numLines"].Value.ToString());
+                    string outString = string.Empty;
+
+                    // Try to get more lines until there are zero left
+                    while (numLines > 0)
+                    {
+                        for (int i = 0; i < numLines; i++)
+                        {
+                            // use proper indexing here
+                            //OracleString s = (OracleString)cmd.Parameters["outString"].Value;
+                            OracleString s = ((OracleString[])cmd.Parameters["outString"].Value)[i];
+                            outString += s.ToString();
+
+                            // add new line just for formatting
+                            outString += "\r\n";
+                        }
+
+                        cmd.ExecuteNonQuery();
+                        numLines = Convert.ToInt32(cmd.Parameters["numLines"].Value.ToString());
+                    }
+                    con.Close();
+                    return outString;
                 }
-                con.Close();
-                return outString;
-            }          
+            }
+            catch (OracleException)
+            {
+                MessageBox.Show("No connection with DataBase");
+                return null;
+            }        
         }
 
         public static void PushConnectionClose()
         {
-            con.Close();
+            try
+            {
+                con.Close();
+            }
+            catch (OracleException)
+            {
+                MessageBox.Show("No connection with DataBase");
+            }
         }
     }
 }

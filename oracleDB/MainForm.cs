@@ -16,7 +16,7 @@ namespace oracleDB
         static private string[] pagesName = { "goods", "sales", "warehouse1", "warehouse2" };
         static private string[] tableFields = { "(name, priority)", "(good_id, good_count, create_date)", "(good_id, good_count)", "(good_id, good_count)" };
 
-        private int CurrentTabPage { get; set; }
+        private int CurrentTabPage;
 
         private void mainTabControl_SelectedIndexChanged(Object sender, TabControlCancelEventArgs e)
         {
@@ -324,6 +324,7 @@ namespace oracleDB
                 case 0:
                     {
                         OracleDataAdapter adapter = DBUtils.SelectAdapter(String.Format("select * from goods"));
+                        //OracleDataAdapter adapter = DBUtils.SelectAdapter(String.Format("testes"));
                         DataTable dt = new DataTable();
                         adapter.Fill(dt);
                         goodsGridView.DataSource = dt;

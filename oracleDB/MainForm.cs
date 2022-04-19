@@ -358,7 +358,7 @@ namespace oracleDB
                     }
                     break;
                 default:
-                    break;
+                    throw new ApplicationException("Wrong Page Name");
             }
         }
 

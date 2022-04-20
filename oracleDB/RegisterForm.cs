@@ -25,6 +25,11 @@ namespace oracleDB
             {
                 try
                 {
+                    if (DBUtils.CheckForLogin(loginTextBox.Text))
+                    {
+                        MessageBox.Show("Such user is already created");
+                        return;
+                    }
                     if (loginTextBox.Text.Length > 20)
                     {
                         MessageBox.Show("Login is to big. Must be less then 20 symbols");
@@ -50,7 +55,6 @@ namespace oracleDB
                     DBUtils.PushConnectionClose();
                     MessageBox.Show(ex.ToString());
                 }
-
             }
             else
             {

@@ -80,6 +80,35 @@ namespace oracleDB
             }
         }
 
+        public static bool CheckForLogin(string login)
+        {
+            string com = String.Format("select username from users_table where username = '{0}'", login);
+
+            using (OracleCommand cmd = new OracleCommand(com, con))
+            {
+                try
+                {
+                    con.Open();
+                    OracleDataReader dr = cmd.ExecuteReader();
+                    if (dr.HasRows)
+                    {
+                        con.Close();
+                        return true;
+                    }
+                    else
+                    {
+                        con.Close();
+                        return false;
+                    }
+                }
+                catch (OracleException)
+                {
+                    MessageBox.Show("No connection with DataBase");
+                    throw new ApplicationException("No connection with DataBase");
+                }
+            }
+        }
+
         public static OracleDataReader ReturnDataReaderForLogin(string login)
         {
             string com = String.Format("select * from users_table where username = '{0}'", login);

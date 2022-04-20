@@ -324,7 +324,7 @@ namespace oracleDB
                 case 0:
                     {
                         OracleDataAdapter adapter = DBUtils.SelectAdapter(String.Format("select * from goods"));
-                        //OracleDataAdapter adapter = DBUtils.SelectAdapter(String.Format("testes"));
+                        //OracleDataAdapter adapter = DBUtils.SelectAdapter("adas");
                         DataTable dt = new DataTable();
                         adapter.Fill(dt);
                         goodsGridView.DataSource = dt;

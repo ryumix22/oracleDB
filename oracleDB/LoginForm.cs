@@ -24,10 +24,9 @@ namespace oracleDB
         {
             if (LoginBox.Text != "" && PassBox.Text != "")
             {
-                Crypto.hashPassword(LoginBox.Text);
-                OracleDataReader dr = DBUtils.ReturnDataReaderForLogin(LoginBox.Text);
-                if (dr.HasRows)
+                if (DBUtils.CheckForLogin(LoginBox.Text))
                 {
+                    OracleDataReader dr = DBUtils.ReturnDataReaderForLogin(LoginBox.Text);
                     dr.Read();
                     string pass = dr.GetString(1);
                     if (Crypto.checkPassword(pass, PassBox.Text))

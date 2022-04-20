@@ -18,6 +18,11 @@ namespace oracleDB
 
         private int CurrentTabPage;
 
+        public DataGridView GetGoodsGridView()
+        {
+            return goodsGridView;
+        }
+
         private void mainTabControl_SelectedIndexChanged(Object sender, TabControlCancelEventArgs e)
         {
             CurrentTabPage = mainTabControl.SelectedIndex;

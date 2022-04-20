@@ -4,6 +4,7 @@ using oracleDB;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
 using System.Data;
+using System.Collections.Generic;
 
 namespace oracleDB_unittests_netf
 {
@@ -138,6 +139,53 @@ namespace oracleDB_unittests_netf
             DBUtils.CreateConnection();
 
             Assert.ThrowsException<ApplicationException>(() => DBUtils.ExecuteCommand("das"), "Wrong command");
+        }
+
+        [TestMethod]
+        public void CheckForLoginTest()
+        {
+            DBUtils.CreateConnection();
+            Assert.IsTrue(DBUtils.CheckForLogin("grisha"));
+        }
+
+        [TestMethod]
+        public void WrongConnectionCheckForLoginTest()
+        {
+            string connString = "Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 222.0.0.2)(PORT = 1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe)));Password=mypass;User ID=c##test2";
+            OracleConnection wrongConnection = new OracleConnection()
+            {
+                ConnectionString = connString
+            };
+            DBUtils.con = wrongConnection;
+
+            Assert.ThrowsException<ApplicationException>(() => DBUtils.CheckForLogin("grisha"), "Wrong connection");
+        }
+        
+        [TestMethod]
+        public void ReturnDataReaderForLoginTest()
+        {
+            CreateConnection();
+            connection.Open();
+            OracleCommand expCommand = new OracleCommand("select * from users_table where username = 'grisha'", connection);
+            OracleDataReader expDR = expCommand.ExecuteReader();
+            List<string> expElements = new List<string>();
+            while (expDR.Read())
+            {
+                expElements.Add(expDR["username"].ToString());
+                expElements.Add(expDR["user_password"].ToString());
+            }
+            connection.Close();
+
+            DBUtils.CreateConnection();
+            OracleDataReader actDP = DBUtils.ReturnDataReaderForLogin("grisha");
+            List<string> actElements = new List<string>();
+            while (actDP.Read())
+            {
+                actElements.Add(actDP["username"].ToString());
+                actElements.Add(actDP["user_password"].ToString());
+            }
+
+            Assert.AreEqual(string.Join(" ", expElements), string.Join(" ", actElements));
         }
     }
 }

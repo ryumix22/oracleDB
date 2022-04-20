@@ -16,8 +16,31 @@ namespace oracleDB
         static private string[] pagesName = { "goods", "sales", "warehouse1", "warehouse2" };
         static private string[] tableFields = { "(name, priority)", "(good_id, good_count, create_date)", "(good_id, good_count)", "(good_id, good_count)" };
 
-        private int CurrentTabPage;
-
+        public int CurrentTabPage;
+        protected internal DataGridView GetGoodsGridView()
+        {
+            return goodsGridView;
+        }
+        protected internal DataGridView GetSalesGridView()
+        {
+            return salesGridView;
+        }
+        protected internal DataGridView GetWarehouse1GridView()
+        {
+            return warehouse1GridView;
+        }
+        protected internal DataGridView GetWarehouse2GridView()
+        {
+            return warehouse2GridView;
+        }
+        protected internal String GetConfigSetString(params string[] args)
+        {
+            return configSetString(args);
+        }
+        protected internal ComboBox GetViewComboBox()
+        {
+            return viewComboBox;
+        }
         private void mainTabControl_SelectedIndexChanged(Object sender, TabControlCancelEventArgs e)
         {
             CurrentTabPage = mainTabControl.SelectedIndex;
@@ -317,7 +340,7 @@ namespace oracleDB
             }
         }
 
-        private void MainFormUpdate(string currentPage)
+        public void MainFormUpdate(string currentPage)
         {
             switch (CurrentTabPage)
             {

@@ -17,11 +17,12 @@ namespace oracleDB
         {
             InitializeComponent();
             this.Text = selectedText;
-            using (OracleDataAdapter adapter = DBUtils.SelectAdapter(String.Format("select * from {0}", selectedText)))
+
+            DataTable dt = ViewFormUtils.GetDataTableView(selectedText);
+            viewGridView.DataSource = dt;
+            if (dt == null)
             {
-                DataTable dt = new DataTable();
-                adapter.Fill(dt);
-                viewGridView.DataSource = dt;
+                MessageBox.Show("No Data avaliable for view");
             }
         }
     }

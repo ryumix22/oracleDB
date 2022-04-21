@@ -13,10 +13,12 @@ namespace oracleDB
 {
     public partial class MainForm : Form
     {
-        static private string[] pagesName = { "goods", "sales", "warehouse1", "warehouse2" };
-        static private string[] tableFields = { "(name, priority)", "(good_id, good_count, create_date)", "(good_id, good_count)", "(good_id, good_count)" };
+        private static string[] pagesName = { "goods", "sales", "warehouse1", "warehouse2" };
+        private static string[] tableFields = { "(name, priority)", "(good_id, good_count, create_date)", "(good_id, good_count)", "(good_id, good_count)" };
 
-        public int CurrentTabPage;
+        public int CurrentTabPage = 0;
+        private MainFormUtils utils;
+
         protected internal DataGridView GetGoodsGridView()
         {
             return goodsGridView;
@@ -33,26 +35,96 @@ namespace oracleDB
         {
             return warehouse2GridView;
         }
-        protected internal String GetConfigSetString(params string[] args)
-        {
-            return configSetString(args);
-        }
         protected internal ComboBox GetViewComboBox()
         {
             return viewComboBox;
-        }
-        private void mainTabControl_SelectedIndexChanged(Object sender, TabControlCancelEventArgs e)
-        {
-            CurrentTabPage = mainTabControl.SelectedIndex;
-            MainFormUpdate(pagesName[CurrentTabPage]);
         }
 
         public MainForm()
         {
             InitializeComponent();
+            utils = new MainFormUtils();
             mainTabControl.Selecting += new TabControlCancelEventHandler(mainTabControl_SelectedIndexChanged);
-            MainFormUpdate(pagesName[CurrentTabPage]);
-            viewComboBoxUpdate();
+            MainFormUpdate();
+            ViewComboBoxUpdate();
+        }
+
+        public void MainFormUpdate()
+        {
+            DataTable dt;
+            switch(CurrentTabPage)
+            {
+                case 0:
+                    {
+                        dt = utils.GetDataTable("select * from goods");
+                        goodsGridView.DataSource = dt;
+                        if (dt == null)
+                        {
+                            MessageBox.Show("No Data avaliable for goods");
+                        }
+                    }
+                    break;
+                case 1:
+                    {
+                        dt = utils.GetDataTable("select " + "\"goods\"" + ".name, good_id, good_count, create_date, sales.id from sales left join goods " +
+                            "\"goods\"" + " on " + "\"goods\"" + ".id = good_id");
+                        salesGridView.DataSource = dt;
+                        if (dt == null)
+                        {
+                            MessageBox.Show("No Data avaliable for sales");
+                        }
+                    }
+                    break;
+                case 2:
+                    {
+                        dt = utils.GetDataTable("select " + "\"goods\"" + ".name, good_id, good_count, warehouse1.id from warehouse1 left join goods "
+                            + "\"goods\"" + " on " + "\"goods\"" + ".id = good_id");
+                        warehouse1GridView.DataSource = dt;
+                        if (dt == null)
+                        {
+                            MessageBox.Show("No Data avaliable for warehouse1");
+                        }
+                    }
+                    break;
+                case 3:
+                    {
+                        dt = utils.GetDataTable("select " + "\"goods\"" + ".name, good_id, good_count, warehouse2.id from warehouse2 left join goods "
+                            + "\"goods\"" + " on " + "\"goods\"" + ".id = good_id");
+                        warehouse2GridView.DataSource = dt;
+                        if (dt == null)
+                        {
+                            MessageBox.Show("No Data avaliable for warehouse2");
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void ViewComboBoxUpdate()
+        {
+            using (OracleDataReader dr = utils.ViewComboBoxDataReader())
+            {
+                if (dr == null)
+                {
+                    MessageBox.Show("Unable to fill Views ComboBox");
+                    return;
+                }
+                while (dr.Read())
+                {
+                    string viewName = dr["view_name"].ToString();
+                    viewComboBox.Items.Add(viewName);
+                }
+            }
+            DBUtils.PushConnectionClose();
+            viewComboBox.SelectedIndex = 0;
+        }
+
+        private void mainTabControl_SelectedIndexChanged(Object sender, TabControlCancelEventArgs e)
+        {
+            CurrentTabPage = mainTabControl.SelectedIndex;
+            MainFormUpdate();
         }
 
         private void insertButton_Click(object sender, EventArgs e)
@@ -61,89 +133,40 @@ namespace oracleDB
             {
                 case 0:
                     {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("insert into {0} {1} values ('{2}', {3})", pagesName[CurrentTabPage], tableFields[CurrentTabPage], nameTextBox.Text, priorityTextBox.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            nameTextBox.Clear();
-                            priorityTextBox.Clear();
-                            idTextBox.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            nameTextBox.Clear();
-                            priorityTextBox.Clear();
-                            idTextBox.Clear();
-                            MessageBox.Show("Some Exception");
-                        }
+                        utils.Insert(0, pagesName[CurrentTabPage], tableFields[CurrentTabPage], nameTextBox.Text, priorityTextBox.Text);
+                        MainFormUpdate();
+                        nameTextBox.Clear();
+                        priorityTextBox.Clear();
+                        idTextBox.Clear();
                     }
                     break;
                 case 1:
                     {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("insert into {0} {1} values ('{2}', {3}, to_date('{4}', 'DD-MM-YYYY'))",
-                                pagesName[CurrentTabPage], tableFields[CurrentTabPage], salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            salesGoodId.Clear();
-                            salesGoodCount.Clear();
-                            salesCreateDate.Clear();
-                            salesId.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            salesGoodId.Clear();
-                            salesGoodCount.Clear();
-                            salesCreateDate.Clear();
-                            salesId.Clear();
-                            Int32.TryParse(salesGoodCount.Text, out int a);
-                            if (a < 1) MessageBox.Show("Cant add count < 1");
-                            else MessageBox.Show("No such goods in warehouses");
-                        }
+                        utils.Insert(1, pagesName[CurrentTabPage], tableFields[CurrentTabPage], salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text);
+                        MainFormUpdate();
+                        salesGoodId.Clear();
+                        salesGoodCount.Clear();
+                        salesCreateDate.Clear();
+                        salesId.Clear();
                     }
                     break;
                 case 2:
                     {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("insert into {0} {1} values ('{2}', {3})",
+                        utils.Insert(2,
                                 pagesName[CurrentTabPage], tableFields[CurrentTabPage], ware1GoodId.Text, ware1GoodCount.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            ware1GoodId.Clear();
-                            ware1Id.Clear();
-                            ware1GoodCount.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            ware1GoodId.Clear();
-                            ware1Id.Clear();
-                            ware1GoodCount.Clear();
-                            MessageBox.Show("Some Exception");
-                        }
+                        MainFormUpdate();
+                        ware1GoodId.Clear();
+                        ware1Id.Clear();
+                        ware1GoodCount.Clear();
                     }
                     break;
                 case 3:
-                    {   
-                        try
-                        {
-                            DBUtils.ExecuteCommand("insert into {0} {1} values ('{2}', {3})",
-                                pagesName[CurrentTabPage], tableFields[CurrentTabPage], ware2GoodId.Text, ware2GoodCount.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            ware2GoodId.Clear();
-                            ware2Id.Clear();
-                            ware2GoodCount.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            ware2GoodId.Clear();
-                            ware2Id.Clear();
-                            ware2GoodCount.Clear();
-                            MessageBox.Show("Cant reduce goods count in warehouse 2 while goods in warehouse 1 exist");
-                        }
+                    {
+                        utils.Insert(3, pagesName[CurrentTabPage], tableFields[CurrentTabPage], ware2GoodId.Text, ware2GoodCount.Text);
+                        MainFormUpdate();
+                        ware2GoodId.Clear();
+                        ware2Id.Clear();
+                        ware2GoodCount.Clear();
                     }
                     break;
                 default:
@@ -157,89 +180,39 @@ namespace oracleDB
             {
                 case 0:
                     {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("update goods set {0} where id = {1}", configSetString(nameTextBox.Text, priorityTextBox.Text), idTextBox.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            nameTextBox.Clear();
-                            priorityTextBox.Clear();
-                            idTextBox.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            nameTextBox.Clear();
-                            priorityTextBox.Clear();
-                            idTextBox.Clear();
-                            MessageBox.Show("Some Exception");
-                        }
+                        utils.Update(0, nameTextBox.Text, priorityTextBox.Text, idTextBox.Text);
+                        MainFormUpdate();
+                        nameTextBox.Clear();
+                        priorityTextBox.Clear();
+                        idTextBox.Clear();
                     }
                     break;
                 case 1:
                     {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("update sales set {0} where id = {1}",
-                                configSetString(salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text), salesId.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            salesGoodId.Clear();
-                            salesGoodCount.Clear();
-                            salesCreateDate.Clear();
-                            salesId.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            salesGoodId.Clear();
-                            salesGoodCount.Clear();
-                            salesCreateDate.Clear();
-                            salesId.Clear();
-                            Int32.TryParse(salesGoodCount.Text, out int a);
-                            if (a < 1) MessageBox.Show("Cant add count < 1");
-                            else MessageBox.Show("No such goods in warehouses");
-                        }
+                        utils.Update(1, salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text, salesId.Text);
+                        MainFormUpdate();
+                        salesGoodId.Clear();
+                        salesGoodCount.Clear();
+                        salesCreateDate.Clear();
+                        salesId.Clear();
                     }
                     break;
                 case 2:
                     {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("update warehouse1 set {0} where id = {1}",
-                                configSetString(ware1GoodId.Text, ware1GoodCount.Text), ware1Id.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            ware1GoodId.Clear();
-                            ware1GoodCount.Clear();
-                            ware1Id.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            ware1GoodId.Clear();
-                            ware1GoodCount.Clear();
-                            ware1Id.Clear();
-                            MessageBox.Show("Some Exception");
-                        }
+                        utils.Update(2, ware1GoodId.Text, ware1GoodCount.Text, ware1Id.Text);
+                        MainFormUpdate();
+                        ware1GoodId.Clear();
+                        ware1GoodCount.Clear();
+                        ware1Id.Clear();
                     }
                     break;
                 case 3:
                     {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("update warehouse2 set {0} where id = {1}",
-                                configSetString(ware2GoodId.Text, ware2GoodCount.Text), ware2Id.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            ware2GoodId.Clear();
-                            ware2Id.Clear();
-                            ware2GoodCount.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            ware2GoodId.Clear();
-                            ware2Id.Clear();
-                            ware2GoodCount.Clear();
-                            MessageBox.Show("Cant reduce goods count in warehouse 2 while goods in warehouse 1 exist");
-                        }
+                        utils.Update(3, ware2GoodId.Text, ware2GoodCount.Text, ware2Id.Text);
+                        MainFormUpdate();
+                        ware2GoodId.Clear();
+                        ware2Id.Clear();
+                        ware2GoodCount.Clear();
                     }
                     break;
                 default:
@@ -253,164 +226,44 @@ namespace oracleDB
             {
                 case 0:
                     {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("delete from goods where id = {0}", idTextBox.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            nameTextBox.Clear();
-                            priorityTextBox.Clear();
-                            idTextBox.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            nameTextBox.Clear();
-                            priorityTextBox.Clear();
-                            idTextBox.Clear();
-                            MessageBox.Show("Some Exception");
-                        }
+                        utils.Delete(0, idTextBox.Text);
+                        MainFormUpdate();
+                        nameTextBox.Clear();
+                        priorityTextBox.Clear();
+                        idTextBox.Clear();
                     }
                     break;
                 case 1:
                     {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("delete from sales where id = {0}", salesId.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            salesGoodId.Clear();
-                            salesGoodCount.Clear();
-                            salesCreateDate.Clear();
-                            salesId.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            salesGoodId.Clear();
-                            salesGoodCount.Clear();
-                            salesCreateDate.Clear();
-                            salesId.Clear();
-                            Int32.TryParse(salesGoodCount.Text, out int a);
-                            if (a < 1) MessageBox.Show("Cant add count < 1");
-                            else MessageBox.Show("No such goods in warehouses");
-                        }
+                        utils.Delete(1, salesId.Text);
+                        MainFormUpdate();
+                        salesGoodId.Clear();
+                        salesGoodCount.Clear();
+                        salesCreateDate.Clear();
+                        salesId.Clear();
                     }
                     break;
                 case 2:
                     {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("delete from warehouse1 where id = {0}", ware1Id.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            ware1GoodId.Clear();
-                            ware1Id.Clear();
-                            ware1GoodCount.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            ware1GoodId.Clear();
-                            ware1Id.Clear();
-                            ware1GoodCount.Clear();
-                            MessageBox.Show("Some Exception");
-                        }
+                        utils.Delete(2, ware1Id.Text);
+                        MainFormUpdate();
+                        ware1GoodId.Clear();
+                        ware1Id.Clear();
+                        ware1GoodCount.Clear();
                     }
                     break;
                 case 3:
                     {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("delete from warehouse2 where id = {0}", ware2Id.Text);
-                            MainFormUpdate(pagesName[CurrentTabPage]);
-                            ware2GoodId.Clear();
-                            ware2Id.Clear();
-                            ware2GoodCount.Clear();
-                        }
-                        catch (OracleException)
-                        {
-                            DBUtils.PushConnectionClose();
-                            ware2GoodId.Clear();
-                            ware2Id.Clear();
-                            ware2GoodCount.Clear();
-                            MessageBox.Show("Cant reduce goods count in warehouse 2 while goods in warehouse 1 exist");
-                        }
+                        utils.Delete(3, ware2Id.Text);
+                        MainFormUpdate();
+                        ware2GoodId.Clear();
+                        ware2Id.Clear();
+                        ware2GoodCount.Clear();
                     }
                     break;
                 default:
                     break;
             }
-        }
-
-        public void MainFormUpdate(string currentPage)
-        {
-            switch (CurrentTabPage)
-            {
-                case 0:
-                    {
-                        OracleDataAdapter adapter = DBUtils.SelectAdapter(String.Format("select * from goods"));
-                        //OracleDataAdapter adapter = DBUtils.SelectAdapter("adas");
-                        DataTable dt = new DataTable();
-                        adapter.Fill(dt);
-                        goodsGridView.DataSource = dt;
-                    }
-                    break;
-                case 1:
-                    {
-                        OracleDataAdapter adapter = DBUtils.SelectAdapter(String.Format(
-                            "select " + "\"goods\"" + ".name, good_id, good_count, create_date, sales.id from sales left join goods " + "\"goods\"" + " on " + "\"goods\"" + ".id = good_id"));
-                        DataTable dt = new DataTable();
-                        adapter.Fill(dt);
-                        salesGridView.DataSource = dt;
-                    }
-                    break;
-                case 2:
-                    {
-                        OracleDataAdapter adapter = DBUtils.SelectAdapter(String.Format(
-                            "select " + "\"goods\"" + ".name, good_id, good_count, warehouse1.id from warehouse1 left join goods " + "\"goods\"" + " on " + "\"goods\"" + ".id = good_id"));
-                        DataTable dt = new DataTable();
-                        adapter.Fill(dt);
-                        warehouse1GridView.DataSource = dt;
-                    }
-                    break;
-                case 3:
-                    {
-                        OracleDataAdapter adapter = DBUtils.SelectAdapter(String.Format(
-                            "select " + "\"goods\"" + ".name, good_id, good_count, warehouse2.id from warehouse2 left join goods " + "\"goods\"" + " on " + "\"goods\"" + ".id = good_id"));
-                        DataTable dt = new DataTable();
-                        adapter.Fill(dt);
-                        warehouse2GridView.DataSource = dt;
-                    }
-                    break;
-                default:
-                    throw new ApplicationException("Wrong Page Name");
-            }
-        }
-
-        private void viewComboBoxUpdate()
-        {
-            DBUtils.ExecuteReaderToComboBox("select view_name from user_views", viewComboBox);
-            viewComboBox.SelectedIndex = 0;
-        }
-
-        private string configSetString(params string[] args)
-        {
-            string[] goods = { "name = ", "priority = " };
-            string[] sales = { "good_id = ", "good_count = ", "create_date = " };
-            string[] warehouse1 = { "good_id = ", "good_count = " };
-            string[] warehouse2 = { "good_id = ", "good_count = " };
-            string[][] fields = { goods, sales, warehouse1, warehouse2 };
-            string resultString = "";
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (args[i] != "")
-                {
-                    if (fields[CurrentTabPage][i] == "name = ") resultString += fields[CurrentTabPage][i] + "'" + args[i] + "'";
-                    else if (fields[CurrentTabPage][i] == "create_date = ") resultString += fields[CurrentTabPage][i] + "to_date('" + args[i] + "','DD-MM-YYYY')";
-                    else resultString += fields[CurrentTabPage][i] + args[i];
-                    resultString += ", ";
-                }
-            }
-            resultString = resultString.Remove(resultString.Length - 2);
-            return resultString;
         }
 
         private void watchViewButton_Click(object sender, EventArgs e)
@@ -448,16 +301,60 @@ namespace oracleDB
             dateToTextBox.Clear();
         }
 
-        //private void button1_Click(object sender, EventArgs e)
-        //{
-        //    Form viewForm = new ViewForm("users_table");
-        //    viewForm.Show();
-        //}
-
         private void button1_Click_1(object sender, EventArgs e)
         {
             Form viewForm = new ViewForm("users_table");
             viewForm.Show();
+        }
+
+        //find button
+        private void idFindButton_Click(object sender, EventArgs e)
+        {
+            switch (CurrentTabPage)
+            {
+                case 0:
+                    {
+                        DataGridViewCell selectedRow = utils.GetIndexOfIdInTable(idFindTextBox.Text, goodsGridView);
+                        if (selectedRow == null)
+                        {
+                            MessageBox.Show("No such good in goods");
+                        }
+                        goodsGridView.CurrentCell = selectedRow;
+                    }
+                    break;
+                case 1:
+                    {
+                        DataGridViewCell selectedRow = utils.GetIndexOfIdInTable(idFindTextBox.Text, salesGridView);
+                        if (selectedRow == null)
+                        {
+                            MessageBox.Show("No such good in goods");
+                        }
+                        salesGridView.CurrentCell = selectedRow;
+                    }
+                    break;
+                case 2:
+                    {
+                        DataGridViewCell selectedRow = utils.GetIndexOfIdInTable(idFindTextBox.Text, warehouse1GridView);
+                        if (selectedRow == null)
+                        {
+                            MessageBox.Show("No such good in goods");
+                        }
+                        warehouse1GridView.CurrentCell = selectedRow;
+                    }
+                    break;
+                case 3:
+                    {
+                        DataGridViewCell selectedRow = utils.GetIndexOfIdInTable(idFindTextBox.Text, warehouse2GridView);
+                        if (selectedRow == null)
+                        {
+                            MessageBox.Show("No such good in goods");
+                        }
+                        warehouse2GridView.CurrentCell = selectedRow;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

@@ -31,19 +31,21 @@ namespace oracleDB_unittests_netf
         {
             return (DataTable)this.GetWarehouse2GridView().DataSource;
         }
-        public String GetSetString(params string[] args)
-        {
-            return this.GetConfigSetString(args);
-        }
+        //public String GetSetString(params string[] args)
+        //{
+        //    return this.GetConfigSetString(args);
+        //}
         public ComboBox GetViewComboBoxTest()
         {
             return this.GetViewComboBox();
         }
     }
     [TestClass]
-    public class MainFormTest
+    public class MainFormUtilsTest
     {
         private static OracleConnection connection { get; set; }
+
+        private MainFormUtils utils = new MainFormUtils();
 
         private static void CreateConnection()
         {
@@ -81,108 +83,33 @@ namespace oracleDB_unittests_netf
         }
 
         [TestMethod]
-        public void MainFormUpdateGoodsTest()
+        public void GetDataTableValidTest()
         {
             CreateConnection();
             connection.Open();
-            OracleDataAdapter expAdapter = new OracleDataAdapter("select * from goods", connection);
+            OracleDataAdapter expAdapter = new OracleDataAdapter("select * from unittest", connection);
             DataTable expDT = new DataTable();
             expAdapter.Fill(expDT);
             connection.Close();
 
-            string pageName = "goods";
             DBUtils.CreateConnection();
-            InternalMainForm form = new InternalMainForm();
-
-            form.CurrentTabPage = 0;
-            form.MainFormUpdate(pageName);
-            DataTable actDT = form.GetGoods();
-
-            Console.WriteLine(TableToString(actDT));
-            Assert.AreEqual(TableToString(expDT), TableToString(actDT));
-        }
-        [TestMethod]
-        public void MainFormUpdateSalesTest()
-        {
-            CreateConnection();
-            connection.Open();
-            OracleDataAdapter expAdapter = new OracleDataAdapter(
-                "select " + "\"goods\"" + ".name, good_id, good_count, create_date, sales.id from sales left join goods " + "\"goods\"" + " on " + "\"goods\"" + ".id = good_id", connection);
-            DataTable expDT = new DataTable();
-            expAdapter.Fill(expDT);
-            connection.Close();
-
-            string pageName = "sales";
-            DBUtils.CreateConnection();
-            InternalMainForm form = new InternalMainForm();
-
-            form.CurrentTabPage = 1;
-            form.MainFormUpdate(pageName);
-            DataTable actDT = form.GetSales();
+            DataTable actDT = utils.GetDataTable("select * from unittest");
 
             Console.WriteLine(TableToString(actDT));
             Assert.AreEqual(TableToString(expDT), TableToString(actDT));
         }
 
         [TestMethod]
-        public void MainFormUpdateWarehouse1Test()
+        public void GetDataTableInvalidTest()
         {
-            CreateConnection();
-            connection.Open();
-            OracleDataAdapter expAdapter = new OracleDataAdapter(
-                "select " + "\"goods\"" + ".name, good_id, good_count, warehouse1.id from warehouse1 left join goods " + "\"goods\"" + " on " + "\"goods\"" + ".id = good_id", connection);
-            DataTable expDT = new DataTable();
-            expAdapter.Fill(expDT);
-            connection.Close();
-
-            string pageName = "warehouse1";
             DBUtils.CreateConnection();
-            InternalMainForm form = new InternalMainForm();
+            DataTable actDT = utils.GetDataTable("wrong command");
 
-            form.CurrentTabPage = 2;
-            form.MainFormUpdate(pageName);
-            DataTable actDT = form.GetWarehouse1();
-
-            Console.WriteLine(TableToString(actDT));
-            Assert.AreEqual(TableToString(expDT), TableToString(actDT));
+            Assert.IsNull(actDT);
         }
 
         [TestMethod]
-        public void MainFormUpdateWarehouse2Test()
-        {
-            CreateConnection();
-            connection.Open();
-            OracleDataAdapter expAdapter = new OracleDataAdapter(
-                "select " + "\"goods\"" + ".name, good_id, good_count, warehouse2.id from warehouse2 left join goods " + "\"goods\"" + " on " + "\"goods\"" + ".id = good_id", connection);
-            DataTable expDT = new DataTable();
-            expAdapter.Fill(expDT);
-            connection.Close();
-
-            string pageName = "warehouse2";
-            DBUtils.CreateConnection();
-            InternalMainForm form = new InternalMainForm();
-
-            form.CurrentTabPage = 3;
-            form.MainFormUpdate(pageName);
-            DataTable actDT = form.GetWarehouse2();
-
-            Console.WriteLine(TableToString(actDT));
-            Assert.AreEqual(TableToString(expDT), TableToString(actDT));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ApplicationException), "Wrong Page Name")]
-        public void MainFormUpdateWrongPageTest()
-        {
-            string pageName = "sales";
-            DBUtils.CreateConnection();
-            InternalMainForm form = new InternalMainForm();
-            form.CurrentTabPage = 5;
-            form.MainFormUpdate(pageName);
-        }
-
-        [TestMethod]
-        public void viewComboBoxUpdateTest()
+        public void ComboBoxUpdateDataTest()
         {
             CreateConnection();
             connection.Open();
@@ -212,14 +139,14 @@ namespace oracleDB_unittests_netf
             {
                 ConnectionString = WrongConnection
             };
-            DBUtils.con = wrongConnection;
+            DBUtils.connection = wrongConnection;
             CreateConnection();
             connection.Open();
             OracleCommand expCommand = new OracleCommand("select view_name from user_views", wrongConnection);
             ComboBox TestComboBox = new ComboBox();
            
 
-            Assert.ThrowsException<ApplicationException>(() => DBUtils.ExecuteReaderToComboBox("select view_name from user_views", TestComboBox), "No connection with DataBase");
+            //Assert.ThrowsException<ApplicationException>(() => DBUtils.ExecuteReaderToComboBox("select view_name from user_views", TestComboBox), "No connection with DataBase");
         }
 
 
@@ -233,10 +160,10 @@ namespace oracleDB_unittests_netf
             InternalMainForm form = new InternalMainForm();
 
             form.CurrentTabPage = 0;
-            string actResultString = form.GetSetString(TextBoxTest);
+            //string actResultString = form.GetSetString(TextBoxTest);
 
-            Console.WriteLine(actResultString);
-            Assert.AreEqual(expResultString, actResultString);
+            //Console.WriteLine(actResultString);
+            //Assert.AreEqual(expResultString, actResultString);
         }
 
         [TestMethod]
@@ -249,10 +176,10 @@ namespace oracleDB_unittests_netf
             InternalMainForm form = new InternalMainForm();
 
             form.CurrentTabPage = 1;
-            string actResultString = form.GetSetString(TextBoxTest);
+            //string actResultString = form.GetSetString(TextBoxTest);
 
-            Console.WriteLine(actResultString);
-            Assert.AreEqual(expResultString, actResultString);
+            //Console.WriteLine(actResultString);
+            //Assert.AreEqual(expResultString, actResultString);
         }
 
         [TestMethod]
@@ -265,10 +192,10 @@ namespace oracleDB_unittests_netf
             InternalMainForm form = new InternalMainForm();
 
             form.CurrentTabPage = 1;
-            string actResultString = form.GetSetString(TextBoxTest);
+            //string actResultString = form.GetSetString(TextBoxTest);
 
-            Console.WriteLine(actResultString);
-            Assert.AreNotEqual(expResultString, actResultString);
+            //Console.WriteLine(actResultString);
+            //Assert.AreNotEqual(expResultString, actResultString);
         }
         [TestMethod]
         public void ConfigSetStringWarehouse1Test()
@@ -280,10 +207,10 @@ namespace oracleDB_unittests_netf
             InternalMainForm form = new InternalMainForm();
 
             form.CurrentTabPage = 2;
-            string actResultString = form.GetSetString(TextBoxTest);
+            //string actResultString = form.GetSetString(TextBoxTest);
 
-            Console.WriteLine(actResultString);
-            Assert.AreEqual(expResultString, actResultString);
+            //Console.WriteLine(actResultString);
+            //Assert.AreEqual(expResultString, actResultString);
         }
 
         [TestMethod]
@@ -296,10 +223,10 @@ namespace oracleDB_unittests_netf
             InternalMainForm form = new InternalMainForm();
 
             form.CurrentTabPage = 3;
-            string actResultString = form.GetSetString(TextBoxTest);
+            //string actResultString = form.GetSetString(TextBoxTest);
 
-            Console.WriteLine(actResultString);
-            Assert.AreEqual(expResultString, actResultString);
+            //Console.WriteLine(actResultString);
+            //Assert.AreEqual(expResultString, actResultString);
         }
 
 

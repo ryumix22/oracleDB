@@ -12,7 +12,7 @@ namespace oracleDB
 {
     public class DBUtils
     {
-        public static OracleConnection con { get; set; }
+        public static OracleConnection connection { get; set; }
 
         private static OracleConnection getDBConnection(string host, int port, string sid, string user, string password)
         {
@@ -42,40 +42,56 @@ namespace oracleDB
             string userName = "c##test2";
             string pass = "mypass";
 
-            con = getDBConnection(host, port, sid, userName, pass);
+            connection = getDBConnection(host, port, sid, userName, pass);
         }
 
-        public static OracleDataAdapter SelectAdapter(string command)
+        public static DataTable ReturnDataTable(string command)
         {
             try
             {
-                con.Open();
-                OracleDataAdapter adapter = new OracleDataAdapter(command, con);
-                con.Close();
-                return adapter;
+                try
+                {
+                    connection.Open();
+                }
+                catch (OracleException)
+                {
+                    throw new ApplicationException("No connection with DataBase");
+                }
+                OracleDataAdapter adapter = new OracleDataAdapter(command, connection);
+                DataTable dt = new DataTable();
+                adapter.Fill(dt);
+                connection.Close();
+                return dt;
             }
             catch (OracleException)
             {
-                MessageBox.Show("No connection with DataBase");
-                throw new ApplicationException("No connection with DataBase");
+                connection.Close();
+                throw new ApplicationException("Wrong command");
             }
         }
 
         public static void ExecuteCommand(string command, params object[] args)
         {
             string com = String.Format(command, args);
-            using (OracleCommand cmd = new OracleCommand(com, con))
+            using (OracleCommand cmd = new OracleCommand(com, connection))
             {
                 try
                 {
-                    con.Open();
+                    try
+                    {
+                        connection.Open();
+                    }
+                    catch (OracleException)
+                    {
+                        throw new ApplicationException("No connection with DataBase");
+                    }
                     cmd.ExecuteNonQuery();
-                    con.Close();
+                    connection.Close();
                 }
                 catch (OracleException)
                 {
-                    MessageBox.Show("No connection with DataBase");
-                    throw new ApplicationException("No connection with DataBase");
+                    connection.Close();
+                    throw new ApplicationException("Wrong Command");
                 }
             }
         }
@@ -84,27 +100,34 @@ namespace oracleDB
         {
             string com = String.Format("select username from users_table where username = '{0}'", login);
 
-            using (OracleCommand cmd = new OracleCommand(com, con))
+            using (OracleCommand cmd = new OracleCommand(com, connection))
             {
                 try
                 {
-                    con.Open();
+                    try
+                    {
+                        connection.Open();
+                    }
+                    catch (OracleException)
+                    {
+                        throw new ApplicationException("No connection with DataBase");
+                    }
                     OracleDataReader dr = cmd.ExecuteReader();
                     if (dr.HasRows)
                     {
-                        con.Close();
+                        connection.Close();
                         return true;
                     }
                     else
                     {
-                        con.Close();
+                        connection.Close();
                         return false;
                     }
                 }
                 catch (OracleException)
                 {
-                    MessageBox.Show("No connection with DataBase");
-                    throw new ApplicationException("No connection with DataBase");
+                    connection.Close();
+                    throw new ApplicationException("Wrong Command");
                 }
             }
         }
@@ -113,43 +136,50 @@ namespace oracleDB
         {
             string com = String.Format("select * from users_table where username = '{0}'", login);
             
-            using (OracleCommand cmd = new OracleCommand(com, con))
+            using (OracleCommand cmd = new OracleCommand(com, connection))
             {
                 try
                 {
-                    con.Open();
+                    try
+                    {
+                        connection.Open();
+                    }
+                    catch (OracleException)
+                    {
+                        throw new ApplicationException("No connection with DataBase");
+                    }
                     OracleDataReader dr = cmd.ExecuteReader();
                     return dr;
                 }
                 catch (OracleException)
                 {
-                    MessageBox.Show("No connection with DataBase");
-                    throw new ApplicationException("No connection with DataBase");
+                    connection.Close();
+                    throw new ApplicationException("Wrong Command");
                 }
             }
         }
 
-        public static void ExecuteReaderToComboBox(string command, ComboBox cb)
+        public static OracleDataReader ReturnDataReader(string command)
         {
-            using (OracleCommand cmd = new OracleCommand(command, con))
+            using (OracleCommand cmd = new OracleCommand(command, connection))
             {
                 try
                 {
-                    con.Open();
-                    using (OracleDataReader dr = cmd.ExecuteReader())
+                    try
                     {
-                        while (dr.Read())
-                        {
-                            string viewName = dr["view_name"].ToString();
-                            cb.Items.Add(viewName);
-                        }
+                        connection.Open();
                     }
-                    con.Close();
+                    catch (OracleException)
+                    {
+                        throw new ApplicationException("No connection with DataBase");
+                    }
+                    OracleDataReader dr = cmd.ExecuteReader();
+                    return dr;
                 }
                 catch (OracleException)
                 {
-                    MessageBox.Show("No connection with DataBase");
-                    throw new ApplicationException("No connection with DataBase");
+                    connection.Close();
+                    throw new ApplicationException("Wrong Command");
                 }
             }
         }
@@ -158,7 +188,14 @@ namespace oracleDB
         {
             try
             {
-                con.Open();
+                try
+                {
+                    connection.Open();
+                }
+                catch (OracleException)
+                {
+                    throw new ApplicationException("No connection with DataBase");
+                }
                 string command;
                 if (!customCommand)
                 {
@@ -168,7 +205,7 @@ namespace oracleDB
                 {
                     command = nameOfProcedure;
                 }
-                using (OracleCommand cmd = new OracleCommand(command, con))
+                using (OracleCommand cmd = new OracleCommand(command, connection))
                 {
                     cmd.CommandText = "BEGIN DBMS_OUTPUT.ENABLE(NULL); END;";
                     cmd.CommandType = CommandType.Text;
@@ -219,14 +256,14 @@ namespace oracleDB
                         cmd.ExecuteNonQuery();
                         numLines = Convert.ToInt32(cmd.Parameters["numLines"].Value.ToString());
                     }
-                    con.Close();
+                    connection.Close();
                     return outString;
                 }
             }
             catch (OracleException)
             {
-                MessageBox.Show("No connection with DataBase");
-                throw new ApplicationException("No connection with DataBase");
+                connection.Close();
+                throw new ApplicationException("Wrong Name Of Procedure");
             }        
         }
 
@@ -234,12 +271,11 @@ namespace oracleDB
         {
             try
             {
-                con.Close();
+                connection.Close();
             }
             catch (OracleException)
             {
-                MessageBox.Show("No connection with DataBase");
-                throw new ApplicationException("No connection with DataBase");
+                throw new ApplicationException("Unable to Close Connection");
             }
         }
     }

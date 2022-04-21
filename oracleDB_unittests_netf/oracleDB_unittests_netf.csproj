@@ -83,7 +83,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainFormTest.cs">
+    <Compile Include="MainFormUtilsTest.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CryptoUnitTest.cs" />

@@ -80,6 +80,9 @@
             this.viewComboBox = new System.Windows.Forms.ComboBox();
             this.watchViewButton = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
+            this.idFindTextBox = new System.Windows.Forms.TextBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.idFindButton = new System.Windows.Forms.Button();
             this.mainTabControl.SuspendLayout();
             this.goodsPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.goodsGridView)).BeginInit();
@@ -592,11 +595,40 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click_1);
             // 
+            // idFindTextBox
+            // 
+            this.idFindTextBox.Location = new System.Drawing.Point(22, 564);
+            this.idFindTextBox.Name = "idFindTextBox";
+            this.idFindTextBox.Size = new System.Drawing.Size(170, 20);
+            this.idFindTextBox.TabIndex = 8;
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(23, 550);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(18, 13);
+            this.label18.TabIndex = 9;
+            this.label18.Text = "ID";
+            // 
+            // idFindButton
+            // 
+            this.idFindButton.Location = new System.Drawing.Point(217, 562);
+            this.idFindButton.Name = "idFindButton";
+            this.idFindButton.Size = new System.Drawing.Size(75, 23);
+            this.idFindButton.TabIndex = 10;
+            this.idFindButton.Text = "Find";
+            this.idFindButton.UseVisualStyleBackColor = true;
+            this.idFindButton.Click += new System.EventHandler(this.idFindButton_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 558);
+            this.ClientSize = new System.Drawing.Size(800, 596);
+            this.Controls.Add(this.idFindButton);
+            this.Controls.Add(this.label18);
+            this.Controls.Add(this.idFindTextBox);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.watchViewButton);
             this.Controls.Add(this.viewComboBox);
@@ -604,8 +636,8 @@
             this.Controls.Add(this.updateButton);
             this.Controls.Add(this.deleteButton);
             this.Controls.Add(this.mainTabControl);
-            this.MaximumSize = new System.Drawing.Size(816, 597);
-            this.MinimumSize = new System.Drawing.Size(816, 597);
+            this.MaximumSize = new System.Drawing.Size(816, 635);
+            this.MinimumSize = new System.Drawing.Size(816, 635);
             this.Name = "MainForm";
             this.Text = "MainForm";
             this.mainTabControl.ResumeLayout(false);
@@ -622,6 +654,7 @@
             this.warehouse2Page.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.warehouse2GridView)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -679,5 +712,8 @@
         private System.Windows.Forms.TextBox id1TextBox;
         private System.Windows.Forms.Button grownButton;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TextBox idFindTextBox;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Button idFindButton;
     }
 }

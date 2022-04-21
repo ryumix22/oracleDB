@@ -273,7 +273,7 @@ namespace oracleDB_unittests_netf
             Assert.AreEqual(expResultString, actResultString);
         }
 
-        [TestMethod]
+        /*[TestMethod]
         public void GetIndexOfIdInTable()
         {
             CreateConnection();
@@ -290,6 +290,6 @@ namespace oracleDB_unittests_netf
 
             
             Assert.AreEqual(expCell.Value, actCell.Value);
-        }
+        }*/
     }
 }

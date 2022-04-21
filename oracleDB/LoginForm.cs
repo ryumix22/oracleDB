@@ -24,14 +24,21 @@ namespace oracleDB
         {
             if (LoginBox.Text != "" && PassBox.Text != "")
             {
-                if (DBUtils.CheckForLogin(LoginBox.Text))
+                LoginFormUtils utils;
+                try
                 {
-                    OracleDataReader dr = DBUtils.ReturnDataReaderForLogin(LoginBox.Text);
-                    dr.Read();
-                    string pass = dr.GetString(1);
-                    if (Crypto.checkPassword(pass, PassBox.Text))
+                    utils = new LoginFormUtils(LoginBox.Text, PassBox.Text);
+                }
+                catch(ApplicationException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return;
+                }
+
+                if (utils.isLoginExist)
+                {
+                    if (utils.isPasswordCorrect)
                     {
-                        DBUtils.PushConnectionClose();
                         Form nextform = new MainForm();
                         nextform.Show();
                         nextform.FormClosed += new FormClosedEventHandler((o, a) =>

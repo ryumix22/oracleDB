@@ -3,8 +3,10 @@ using System;
 using oracleDB;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
+using System.Windows.Forms;
 using System.Data;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace oracleDB_unittests_netf
 {
@@ -187,5 +189,79 @@ namespace oracleDB_unittests_netf
 
             Assert.AreEqual(string.Join(" ", expElements), string.Join(" ", actElements));
         }
+
+        [TestMethod]
+        public void ReturnDataReaderForLoginConnectionTest()
+        {
+            string connString = "Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 222.0.0.2)(PORT = 1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe)));Password=mypass;User ID=c##test2";
+            OracleConnection wrongConnection = new OracleConnection()
+            {
+                ConnectionString = connString
+            };
+            DBUtils.con = wrongConnection;
+
+            Assert.ThrowsException<ApplicationException>(() => DBUtils.ReturnDataReaderForLogin("grisha"), "Wrong connection");
+        }
+
+        [TestMethod]
+        public void ExecuteReaderToComboBoxTest()
+        {
+            CreateConnection();
+            connection.Open();
+            OracleCommand expCommand = new OracleCommand("select view_name from user_views", connection);
+            OracleDataReader expDR = expCommand.ExecuteReader();
+            List<string> expElements = new List<string>();
+            while (expDR.Read())
+            {
+                Console.WriteLine(expDR["view_name"].ToString());
+                expElements.Add(expDR["view_name"].ToString());
+            }
+            connection.Close();
+
+            DBUtils.CreateConnection();
+            InternalMainForm form = new InternalMainForm();
+
+            string[] actElements = form.GetViewComboBoxTest().Items.Cast<string>().ToArray();
+
+            Assert.AreEqual(string.Join(" ", expElements), string.Join(" ", actElements));
+        }
+
+        [TestMethod]
+        public void ExecuteReaderToComboBoxConnectionTest()
+        {
+            string connString = "Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 222.0.0.2)(PORT = 1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe)));Password=mypass;User ID=c##test2";
+            OracleConnection wrongConnection = new OracleConnection()
+            {
+                ConnectionString = connString
+            };
+            DBUtils.con = wrongConnection;
+            ComboBox TestComboBox = new ComboBox();
+
+            Assert.ThrowsException<ApplicationException>(() => DBUtils.ExecuteReaderToComboBox("select view_name from user_views", TestComboBox), "No connection with DataBase");
+        }
+
+        [TestMethod]
+        public void GetDbmsOutputLine()
+        {
+
+        }
+
+        /*        [TestMethod]
+                public void PushConnectionCloseTest()
+                {
+
+                    DBUtils.CreateConnection();
+                    DBUtils.con.Open();
+                    string connString = "Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 127.0.0.1)(PORT = 1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe)));Password=mypass;User ID=c##test2";
+                    OracleConnection wrongConnection = new OracleConnection()
+                    {
+                        ConnectionString = connString
+                    };
+                    DBUtils.con = wrongConnection;
+                    DBUtils.PushConnectionClose();
+
+                    Assert.ThrowsException<ApplicationException>(() => DBUtils.PushConnectionClose());
+
+                }*/
     }
 }

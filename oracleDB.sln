@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32126.315
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oracleDB", "oracleDB\oracleDB.csproj", "{1788AA7A-D4DB-4C0C-8E91-4197555B51A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oracleDB_unittests_netf", "oracleDB_unittests_netf\oracleDB_unittests_netf.csproj", "{7A023FE5-E895-44B7-91E9-4AC850638943}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oracleDB_othertests", "oracleDB_othertests\oracleDB_othertests.csproj", "{B3DA4594-D930-4728-A048-1C7640E99B1B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1788AA7A-D4DB-4C0C-8E91-4197555B51A6} = {1788AA7A-D4DB-4C0C-8E91-4197555B51A6}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +26,10 @@ Global
 		{7A023FE5-E895-44B7-91E9-4AC850638943}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A023FE5-E895-44B7-91E9-4AC850638943}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A023FE5-E895-44B7-91E9-4AC850638943}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3DA4594-D930-4728-A048-1C7640E99B1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3DA4594-D930-4728-A048-1C7640E99B1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3DA4594-D930-4728-A048-1C7640E99B1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3DA4594-D930-4728-A048-1C7640E99B1B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

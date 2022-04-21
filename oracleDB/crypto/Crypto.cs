@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 
 namespace oracleDB.crypto
 {
-    class Crypto
+    public class Crypto
     {
         public static string hashPassword(string pass)
         {

@@ -12,34 +12,6 @@ using System.Threading.Tasks;
 
 namespace oracleDB_unittests_netf
 {
-    class InternalMainForm : MainForm
-    {
-
-        public DataTable GetGoods()
-        {
-            return (DataTable)this.GetGoodsGridView().DataSource;
-        }
-        public DataTable GetSales()
-        {
-            return (DataTable)this.GetSalesGridView().DataSource;
-        }
-        public DataTable GetWarehouse1()
-        {
-            return (DataTable)this.GetWarehouse1GridView().DataSource;
-        }
-        public DataTable GetWarehouse2()
-        {
-            return (DataTable)this.GetWarehouse2GridView().DataSource;
-        }
-        //public String GetSetString(params string[] args)
-        //{
-        //    return this.GetConfigSetString(args);
-        //}
-        public ComboBox GetViewComboBoxTest()
-        {
-            return this.GetViewComboBox();
-        }
-    }
     [TestClass]
     public class MainFormUtilsTest
     {
@@ -109,7 +81,92 @@ namespace oracleDB_unittests_netf
         }
 
         [TestMethod]
-        public void ComboBoxUpdateDataTest()
+        public void GetDataTableWrongConnectionTest()
+        {
+            string WrongConnection = "Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 222.0.0.2)(PORT = 1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe)));Password=mypass;User ID=c##test2";
+            OracleConnection wrongConnection = new OracleConnection()
+            {
+                ConnectionString = WrongConnection
+            };
+            DBUtils.connection = wrongConnection;
+            Assert.IsNull(utils.GetDataTable("select * from unittest"));
+        }
+
+        [TestMethod]
+        public void InsertTest()
+        {
+            DBUtils.CreateConnection();
+            string com = "insert into {0}{1} values('{2}', '{3}', {4})";
+            utils.Insert(com, 1, "unittest", "(name1, name2, num1)", "test5", "test15", "500");
+
+            CreateConnection();
+            connection.Open();
+            OracleCommand actCommand = new OracleCommand("select * from unittest where name1 = 'test5'", connection);
+            OracleDataReader actDR = actCommand.ExecuteReader();
+            List<string> actElements = new List<string>();
+            while (actDR.Read())
+            {
+                actElements.Add(actDR["name1"].ToString());
+                actElements.Add(actDR["name2"].ToString());
+                actElements.Add(actDR["num1"].ToString());
+            }
+            connection.Close();
+
+            Assert.AreEqual("test5 test15 500", string.Join(" ", actElements));
+        }
+
+        /*[TestMethod]
+        public void UpdateTest()
+        {
+            DBUtils.CreateConnection();
+            string com = "update {0} set {1} = '{2}' where id = {3})";
+            utils.Insert(com, 1, "unittest", "unittest.name1", "test33", "21");
+
+            CreateConnection();
+            connection.Open();
+            OracleCommand actCommand = new OracleCommand("select * from unittest where name1 = 'test33'", connection);
+            OracleDataReader actDR = actCommand.ExecuteReader();
+            List<string> actElements = new List<string>();
+            while (actDR.Read())
+            {
+                actElements.Add(actDR["name1"].ToString());
+                actElements.Add(actDR["name2"].ToString());
+                actElements.Add(actDR["num1"].ToString());
+            }
+            connection.Close();
+
+            Assert.AreEqual("test33 test111 100", string.Join(" ", actElements));
+        }*/
+
+        [TestMethod]
+        public void DeleteTest()
+        {
+            DBUtils.CreateConnection();
+            string com = "insert into {0}{1} values('{2}', '{3}', {4})";
+            utils.Insert(com, 1, "unittest", "(name1, name2, num1)", "test6", "test16", "600");
+
+            CreateConnection();
+            connection.Open();
+            OracleCommand actCommand = new OracleCommand("select * from unittest where name1 = 'test6'", connection);
+            OracleDataReader actDR = actCommand.ExecuteReader();
+            List<string> actElements = new List<string>();
+            string id = "";
+            while (actDR.Read())
+            {
+                actElements.Add(actDR["name1"].ToString());
+                actElements.Add(actDR["name2"].ToString());
+                actElements.Add(actDR["num1"].ToString());
+            }
+
+            utils.Delete("delete from unittest where name1 = '{0}'", actElements[0]);
+            OracleCommand actCommand2 = new OracleCommand("select * from unittest where name1 = 'test6'", connection);
+            OracleDataReader actDR2 = actCommand2.ExecuteReader();
+            Assert.IsFalse(actDR2.Read());
+            connection.Close();
+        }
+
+        [TestMethod]
+        public void ViewComboBoxDataReaderValidTest()
         {
             CreateConnection();
             connection.Open();
@@ -124,15 +181,19 @@ namespace oracleDB_unittests_netf
             connection.Close();
 
             DBUtils.CreateConnection();
-            InternalMainForm form = new InternalMainForm();
-
-            string[] actElements = form.GetViewComboBoxTest().Items.Cast <string>().ToArray();
+            OracleDataReader actDR = utils.ViewComboBoxDataReader();
+            List<string> actElements = new List<string>();
+            while (actDR.Read())
+            {
+                Console.WriteLine(actDR["view_name"].ToString());
+                actElements.Add(actDR["view_name"].ToString());
+            }
 
             Assert.AreEqual(string.Join(" ", expElements), string.Join(" ", actElements));
-           }
+        }
 
         [TestMethod]
-        public void viewComboBoxUpdateConnectionTest()
+        public void ViewComboBoxDataReaderWrongConnectionTest()
         {
             string WrongConnection = "Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 222.0.0.2)(PORT = 1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe)));Password=mypass;User ID=c##test2";
             OracleConnection wrongConnection = new OracleConnection()
@@ -140,15 +201,8 @@ namespace oracleDB_unittests_netf
                 ConnectionString = WrongConnection
             };
             DBUtils.connection = wrongConnection;
-            CreateConnection();
-            connection.Open();
-            OracleCommand expCommand = new OracleCommand("select view_name from user_views", wrongConnection);
-            ComboBox TestComboBox = new ComboBox();
-           
-
-            //Assert.ThrowsException<ApplicationException>(() => DBUtils.ExecuteReaderToComboBox("select view_name from user_views", TestComboBox), "No connection with DataBase");
+            Assert.IsNull(utils.ViewComboBoxDataReader());
         }
-
 
         [TestMethod]
         public void ConfigSetStringGoodsTest()
@@ -157,13 +211,11 @@ namespace oracleDB_unittests_netf
             string[] TextBoxTest = { "car", "2" };
 
             DBUtils.CreateConnection();
-            InternalMainForm form = new InternalMainForm();
 
-            form.CurrentTabPage = 0;
-            //string actResultString = form.GetSetString(TextBoxTest);
+            string actResultString = utils.ConfigSetString(0, TextBoxTest);
 
-            //Console.WriteLine(actResultString);
-            //Assert.AreEqual(expResultString, actResultString);
+            Console.WriteLine(actResultString);
+            Assert.AreEqual(expResultString, actResultString);
         }
 
         [TestMethod]
@@ -173,29 +225,25 @@ namespace oracleDB_unittests_netf
             string[] TextBoxTest = { "3", "40", "10.10.2021"};
 
             DBUtils.CreateConnection();
-            InternalMainForm form = new InternalMainForm();
 
-            form.CurrentTabPage = 1;
-            //string actResultString = form.GetSetString(TextBoxTest);
+            string actResultString = utils.ConfigSetString(1, TextBoxTest);
 
-            //Console.WriteLine(actResultString);
-            //Assert.AreEqual(expResultString, actResultString);
+            Console.WriteLine(actResultString);
+            Assert.AreEqual(expResultString, actResultString);
         }
 
         [TestMethod]
         public void ConfigSetStringSalesTest2()
         {
-            string expResultString = "good_id = 3, good_count = 40, create_date = to_date('10.10.2021','DD-MM-YYYY')";
+            string expResultString = "good_id = 3, good_count = 40, create_date = to_date('10-10-2021','DD-MM-YYYY')";
             string[] TextBoxTest = { "3", "40", "10-10-2021" };
 
             DBUtils.CreateConnection();
-            InternalMainForm form = new InternalMainForm();
 
-            form.CurrentTabPage = 1;
-            //string actResultString = form.GetSetString(TextBoxTest);
+            string actResultString = utils.ConfigSetString(1, TextBoxTest);
 
-            //Console.WriteLine(actResultString);
-            //Assert.AreNotEqual(expResultString, actResultString);
+            Console.WriteLine(actResultString);
+            Assert.AreEqual(expResultString, actResultString);
         }
         [TestMethod]
         public void ConfigSetStringWarehouse1Test()
@@ -204,13 +252,11 @@ namespace oracleDB_unittests_netf
             string[] TextBoxTest = { "6", "20" };
 
             DBUtils.CreateConnection();
-            InternalMainForm form = new InternalMainForm();
 
-            form.CurrentTabPage = 2;
-            //string actResultString = form.GetSetString(TextBoxTest);
+            string actResultString = utils.ConfigSetString(2, TextBoxTest);
 
-            //Console.WriteLine(actResultString);
-            //Assert.AreEqual(expResultString, actResultString);
+            Console.WriteLine(actResultString);
+            Assert.AreEqual(expResultString, actResultString);
         }
 
         [TestMethod]
@@ -220,17 +266,30 @@ namespace oracleDB_unittests_netf
             string[] TextBoxTest = { "3", "400" };
 
             DBUtils.CreateConnection();
-            InternalMainForm form = new InternalMainForm();
 
-            form.CurrentTabPage = 3;
-            //string actResultString = form.GetSetString(TextBoxTest);
+            string actResultString = utils.ConfigSetString(3, TextBoxTest);
 
-            //Console.WriteLine(actResultString);
-            //Assert.AreEqual(expResultString, actResultString);
+            Console.WriteLine(actResultString);
+            Assert.AreEqual(expResultString, actResultString);
         }
 
+        [TestMethod]
+        public void GetIndexOfIdInTable()
+        {
+            CreateConnection();
+            connection.Open();
+            OracleDataAdapter expAdapter = new OracleDataAdapter("select * from goods", connection);
+            DataTable expDT = new DataTable();
+            expAdapter.Fill(expDT);
 
+            DataGridView view = new DataGridView();
+            view.DataSource = expDT;
+            DataGridViewCell expCell = view.Rows[0].Cells[0];
+            DataGridViewCell actCell = utils.GetIndexOfIdInTable("1", view);
+            connection.Close();
 
+            
+            Assert.AreEqual(expCell.Value, actCell.Value);
+        }
     }
-
 }

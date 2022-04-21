@@ -133,7 +133,12 @@ namespace oracleDB
             {
                 case 0:
                     {
-                        utils.Insert(0, pagesName[CurrentTabPage], tableFields[CurrentTabPage], nameTextBox.Text, priorityTextBox.Text);
+                        if (nameTextBox.Text == "" || priorityTextBox.Text == "")
+                        {
+                            MessageBox.Show("Fill all fields");
+                            return;
+                        }
+                        utils.Insert("insert into {0} {1} values ('{2}', {3})", 0, pagesName[CurrentTabPage], tableFields[CurrentTabPage], nameTextBox.Text, priorityTextBox.Text);
                         MainFormUpdate();
                         nameTextBox.Clear();
                         priorityTextBox.Clear();
@@ -142,7 +147,19 @@ namespace oracleDB
                     break;
                 case 1:
                     {
-                        utils.Insert(1, pagesName[CurrentTabPage], tableFields[CurrentTabPage], salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text);
+                        if (salesGoodId.Text == "" || salesGoodCount.Text == "" || salesCreateDate.Text == "")
+                        {
+                            MessageBox.Show("Fill all fields");
+                            return;
+                        }
+                        int size;
+                        Int32.TryParse(salesGoodCount.Text, out size);
+                        if (size < 1)
+                        {
+                            MessageBox.Show("Size must be more then 1");
+                            return;
+                        }
+                        utils.Insert("insert into {0} {1} values ('{2}', {3}, to_date('{4}', 'DD-MM-YYYY'))", 1, pagesName[CurrentTabPage], tableFields[CurrentTabPage], salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text);
                         MainFormUpdate();
                         salesGoodId.Clear();
                         salesGoodCount.Clear();
@@ -152,7 +169,12 @@ namespace oracleDB
                     break;
                 case 2:
                     {
-                        utils.Insert(2,
+                        if (ware1GoodId.Text == "" || ware1GoodCount.Text == "")
+                        {
+                            MessageBox.Show("Fill all fields");
+                            return;
+                        }
+                        utils.Insert("insert into {0} {1} values ('{2}', {3})", 2,
                                 pagesName[CurrentTabPage], tableFields[CurrentTabPage], ware1GoodId.Text, ware1GoodCount.Text);
                         MainFormUpdate();
                         ware1GoodId.Clear();
@@ -162,7 +184,12 @@ namespace oracleDB
                     break;
                 case 3:
                     {
-                        utils.Insert(3, pagesName[CurrentTabPage], tableFields[CurrentTabPage], ware2GoodId.Text, ware2GoodCount.Text);
+                        if (ware2GoodId.Text == "" || ware2GoodCount.Text == "")
+                        {
+                            MessageBox.Show("Fill all fields");
+                            return;
+                        }
+                        utils.Insert("insert into {0} {1} values ('{2}', {3})", 3, pagesName[CurrentTabPage], tableFields[CurrentTabPage], ware2GoodId.Text, ware2GoodCount.Text);
                         MainFormUpdate();
                         ware2GoodId.Clear();
                         ware2Id.Clear();
@@ -180,7 +207,17 @@ namespace oracleDB
             {
                 case 0:
                     {
-                        utils.Update(0, nameTextBox.Text, priorityTextBox.Text, idTextBox.Text);
+                        if (nameTextBox.Text == "" || priorityTextBox.Text == "")
+                        {
+                            MessageBox.Show("Fill TextBox or TextBoxes you want to change");
+                            return;
+                        }
+                        if (idTextBox.Text == "")
+                        {
+                            MessageBox.Show("Enter ID");
+                            return;
+                        }
+                        utils.Update("update goods set {0} where id = {1}", 0, nameTextBox.Text, priorityTextBox.Text, idTextBox.Text);
                         MainFormUpdate();
                         nameTextBox.Clear();
                         priorityTextBox.Clear();
@@ -189,7 +226,24 @@ namespace oracleDB
                     break;
                 case 1:
                     {
-                        utils.Update(1, salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text, salesId.Text);
+                        if (salesGoodId.Text == "" || salesGoodCount.Text == "" || salesCreateDate.Text == "")
+                        {
+                            MessageBox.Show("Fill TextBox or TextBoxes you want to change");
+                            return;
+                        }
+                        if (salesId.Text == "")
+                        {
+                            MessageBox.Show("Enter ID");
+                            return;
+                        }
+                        int size;
+                        Int32.TryParse(salesGoodCount.Text, out size);
+                        if (size < 1)
+                        {
+                            MessageBox.Show("Size must be more then 1");
+                            return;
+                        }
+                        utils.Update("update sales set {0} where id = {1}", 1, salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text, salesId.Text);
                         MainFormUpdate();
                         salesGoodId.Clear();
                         salesGoodCount.Clear();
@@ -199,7 +253,17 @@ namespace oracleDB
                     break;
                 case 2:
                     {
-                        utils.Update(2, ware1GoodId.Text, ware1GoodCount.Text, ware1Id.Text);
+                        if (ware1GoodId.Text == "" || ware1GoodCount.Text == "")
+                        {
+                            MessageBox.Show("Fill TextBox or TextBoxes you want to change");
+                            return;
+                        }
+                        if (ware1Id.Text == "")
+                        {
+                            MessageBox.Show("Enter ID");
+                            return;
+                        }
+                        utils.Update("update warehouse1 set {0} where id = {1}", 2, ware1GoodId.Text, ware1GoodCount.Text, ware1Id.Text);
                         MainFormUpdate();
                         ware1GoodId.Clear();
                         ware1GoodCount.Clear();
@@ -208,7 +272,17 @@ namespace oracleDB
                     break;
                 case 3:
                     {
-                        utils.Update(3, ware2GoodId.Text, ware2GoodCount.Text, ware2Id.Text);
+                        if (ware2GoodId.Text == "" || ware2GoodCount.Text == "")
+                        {
+                            MessageBox.Show("Fill TextBox or TextBoxes you want to change");
+                            return;
+                        }
+                        if (ware2Id.Text == "")
+                        {
+                            MessageBox.Show("Enter ID");
+                            return;
+                        }
+                        utils.Update("update warehouse2 set {0} where id = {1}", 3, ware2GoodId.Text, ware2GoodCount.Text, ware2Id.Text);
                         MainFormUpdate();
                         ware2GoodId.Clear();
                         ware2Id.Clear();
@@ -226,7 +300,7 @@ namespace oracleDB
             {
                 case 0:
                     {
-                        utils.Delete(0, idTextBox.Text);
+                        utils.Delete("delete from goods whedasdre id = {0}", idTextBox.Text);
                         MainFormUpdate();
                         nameTextBox.Clear();
                         priorityTextBox.Clear();
@@ -235,7 +309,7 @@ namespace oracleDB
                     break;
                 case 1:
                     {
-                        utils.Delete(1, salesId.Text);
+                        utils.Delete("delete from sales where id = {0}", salesId.Text);
                         MainFormUpdate();
                         salesGoodId.Clear();
                         salesGoodCount.Clear();
@@ -245,7 +319,7 @@ namespace oracleDB
                     break;
                 case 2:
                     {
-                        utils.Delete(2, ware1Id.Text);
+                        utils.Delete("delete from warehouse1 where id = {0}", ware1Id.Text);
                         MainFormUpdate();
                         ware1GoodId.Clear();
                         ware1Id.Clear();
@@ -254,7 +328,7 @@ namespace oracleDB
                     break;
                 case 3:
                     {
-                        utils.Delete(3, ware2Id.Text);
+                        utils.Delete("delete from warehouse2 where id = {0}", ware2Id.Text);
                         MainFormUpdate();
                         ware2GoodId.Clear();
                         ware2Id.Clear();

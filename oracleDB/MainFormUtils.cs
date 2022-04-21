@@ -26,7 +26,7 @@ namespace oracleDB
             }
         }
 
-        public void Insert(int currentPage, params string[] p)
+        public void Insert(string command, int currentPage, params string[] p)
         {
             switch (currentPage)
             {
@@ -34,12 +34,7 @@ namespace oracleDB
                     {
                         try
                         {
-                            if (p[2] == "" || p[3] == "")
-                            {
-                                MessageBox.Show("Fill all fields");
-                                return;
-                            }
-                            DBUtils.ExecuteCommand("insert into {0} {1} values ('{2}', {3})", p[0], p[1], p[2], p[3]);
+                            DBUtils.ExecuteCommand(command, p[0], p[1], p[2], p[3]);
                         }
                         catch (ApplicationException ex)
                         {
@@ -51,19 +46,7 @@ namespace oracleDB
                     {
                         try
                         {
-                            if (p[2] == "" || p[3] == "" || p[4] == "")
-                            {
-                                MessageBox.Show("Fill all fields");
-                                return;
-                            }
-                            int size;
-                            Int32.TryParse(p[2], out size);
-                            if (size < 1)
-                            {
-                                MessageBox.Show("Size must be more then 1");
-                                return;
-                            }
-                            DBUtils.ExecuteCommand("insert into {0} {1} values ('{2}', {3}, to_date('{4}', 'DD-MM-YYYY'))",
+                            DBUtils.ExecuteCommand(command,
                                 p[0], p[1], p[2], p[3], p[4]);
                         }
                         catch (ApplicationException ex)
@@ -76,12 +59,7 @@ namespace oracleDB
                     {
                         try
                         {
-                            if (p[2] == "" || p[3] == "")
-                            {
-                                MessageBox.Show("Fill all fields");
-                                return;
-                            }
-                            DBUtils.ExecuteCommand("insert into {0} {1} values ('{2}', {3})", p[0], p[1], p[2], p[3]);
+                            DBUtils.ExecuteCommand(command, p[0], p[1], p[2], p[3]);
                         }
                         catch (ApplicationException ex)
                         {
@@ -93,12 +71,7 @@ namespace oracleDB
                     {   
                         try
                         {
-                            if (p[2] == "" || p[3] == "")
-                            {
-                                MessageBox.Show("Fill all fields");
-                                return;
-                            }
-                            DBUtils.ExecuteCommand("insert into {0} {1} values ('{2}', {3})", p[0], p[1], p[2], p[3]);
+                            DBUtils.ExecuteCommand(command, p[0], p[1], p[2], p[3]);
                         }
                         catch (ApplicationException ex)
                         {
@@ -111,7 +84,7 @@ namespace oracleDB
             }
         }
 
-        public void Update(int currentPage, params string[] p)
+        public void Update(string command, int currentPage, params string[] p)
         {
             switch (currentPage)
             {
@@ -119,7 +92,7 @@ namespace oracleDB
                     {
                         try
                         {
-                            DBUtils.ExecuteCommand("update goods set {0} where id = {1}", ConfigSetString(currentPage, p[0], p[1]),
+                            DBUtils.ExecuteCommand(command, ConfigSetString(currentPage, p[0], p[1]),
                                 p[2]);
                         }
                         catch (ApplicationException ex)
@@ -132,14 +105,7 @@ namespace oracleDB
                     {
                         try
                         {
-                            int size;
-                            Int32.TryParse(p[2], out size);
-                            if (size < 1)
-                            {
-                                MessageBox.Show("Size must be more then 1");
-                                return;
-                            }
-                            DBUtils.ExecuteCommand("update sales set {0} where id = {1}",
+                            DBUtils.ExecuteCommand(command,
                                 ConfigSetString(currentPage, p[0], p[1], p[2]), p[3]);
                         }
                         catch (ApplicationException ex)
@@ -152,7 +118,7 @@ namespace oracleDB
                     {
                         try
                         {
-                            DBUtils.ExecuteCommand("update warehouse1 set {0} where id = {1}",
+                            DBUtils.ExecuteCommand(command,
                                 ConfigSetString(currentPage, p[0], p[1]), p[2]);
                         }
                         catch (ApplicationException ex)
@@ -165,7 +131,7 @@ namespace oracleDB
                     {
                         try
                         {
-                            DBUtils.ExecuteCommand("update warehouse2 set {0} where id = {1}",
+                            DBUtils.ExecuteCommand(command,
                                 ConfigSetString(currentPage, p[0], p[1]), p[2]);
                         }
                         catch (ApplicationException ex)
@@ -179,60 +145,15 @@ namespace oracleDB
             }
         }
 
-        public void Delete(int currentPage, string id)
+        public void Delete(string command, string id)
         {
-            switch (currentPage)
+            try
             {
-                case 0:
-                    {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("delete from goods whedasdre id = {0}", id);
-                        }
-                        catch (ApplicationException ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
-                    }
-                    break;
-                case 1:
-                    {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("delete from sales where id = {0}", id);
-                        }
-                        catch (ApplicationException ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
-                    }
-                    break;
-                case 2:
-                    {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("delete from warehouse1 where id = {0}", id);
-                        }
-                        catch (ApplicationException ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
-                    }
-                    break;
-                case 3:
-                    {
-                        try
-                        {
-                            DBUtils.ExecuteCommand("delete from warehouse2 where id = {0}", id);
-                        }
-                        catch (ApplicationException ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
-                    }
-                    break;
-                default:
-                    break;
+                DBUtils.ExecuteCommand(command, id);
+            }
+            catch (ApplicationException ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -255,7 +176,7 @@ namespace oracleDB
             string[] warehouse1 = { "good_id = ", "good_count = " };
             string[] warehouse2 = { "good_id = ", "good_count = " };
             string[][] fields = { goods, sales, warehouse1, warehouse2 };
-            string resultString = "";
+            string resultString = "";      
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] != "")
@@ -273,6 +194,7 @@ namespace oracleDB
         public DataGridViewCell GetIndexOfIdInTable(string id, DataGridView currentGridView)
         {
             int columnIndex = -1;
+            if (currentGridView == null) return null;
             foreach (DataGridViewColumn column in currentGridView.Columns)
             {
                 if (column.Name.Equals("ID"))

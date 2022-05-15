@@ -46,14 +46,13 @@ namespace oracleDB
                         return;
                     }
                     string hashedPassword = Crypto.hashPassword(passwordTextBox.Text);
-                    Console.WriteLine(hashedPassword);
                     DBUtils.ExecuteCommand("insert into users_table (username, user_password) values ('{0}', '{1}')", loginTextBox.Text, hashedPassword);
                     this.Close();
                 }
-                catch (OracleException ex)
+                catch (ApplicationException ex)
                 {
                     DBUtils.PushConnectionClose();
-                    MessageBox.Show(ex.ToString());
+                    MessageBox.Show(ex.Message);
                 }
             }
             else

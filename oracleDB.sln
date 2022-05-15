@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oracleDB", "oracleDB\oracle
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oracleDB_unittests_netf", "oracleDB_unittests_netf\oracleDB_unittests_netf.csproj", "{7A023FE5-E895-44B7-91E9-4AC850638943}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oracleDB_integrationtests_netf", "oracleDB_integrationtests_netf\oracleDB_integrationtests_netf.csproj", "{14C9B1B2-47B8-48BC-9BCA-36A6359D234E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{7A023FE5-E895-44B7-91E9-4AC850638943}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A023FE5-E895-44B7-91E9-4AC850638943}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A023FE5-E895-44B7-91E9-4AC850638943}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14C9B1B2-47B8-48BC-9BCA-36A6359D234E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14C9B1B2-47B8-48BC-9BCA-36A6359D234E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14C9B1B2-47B8-48BC-9BCA-36A6359D234E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14C9B1B2-47B8-48BC-9BCA-36A6359D234E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

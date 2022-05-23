@@ -55,23 +55,6 @@ namespace oracleDB_unittests_netf
         }
 
         [TestMethod]
-        public void GetDataTableValidTest()
-        {
-            CreateConnection();
-            connection.Open();
-            OracleDataAdapter expAdapter = new OracleDataAdapter("select * from unittest", connection);
-            DataTable expDT = new DataTable();
-            expAdapter.Fill(expDT);
-            connection.Close();
-
-            DBUtils.CreateConnection();
-            DataTable actDT = utils.GetDataTable("select * from unittest");
-
-            Console.WriteLine(TableToString(actDT));
-            Assert.AreEqual(TableToString(expDT), TableToString(actDT));
-        }
-
-        [TestMethod]
         public void GetDataTableInvalidTest()
         {
             DBUtils.CreateConnection();
@@ -93,103 +76,53 @@ namespace oracleDB_unittests_netf
         }
 
         [TestMethod]
-        public void InsertTest()
+        public void InsertTestWrongCountOfParams()
         {
-            DBUtils.CreateConnection();
-            string com = "insert into {0}{1} values('{2}', '{3}', {4})";
-            utils.Insert(com, 1, "unittest", "(name1, name2, num1)", "test5", "test15", "500");
+            MainFormUtils mf = new MainFormUtils();
 
-            CreateConnection();
-            connection.Open();
-            OracleCommand actCommand = new OracleCommand("select * from unittest where name1 = 'test5'", connection);
-            OracleDataReader actDR = actCommand.ExecuteReader();
-            List<string> actElements = new List<string>();
-            while (actDR.Read())
-            {
-                actElements.Add(actDR["name1"].ToString());
-                actElements.Add(actDR["name2"].ToString());
-                actElements.Add(actDR["num1"].ToString());
-            }
-            connection.Close();
+            int act = mf.Insert("test", 1, "asr");
 
-            Assert.AreEqual("test5 test15 500", string.Join(" ", actElements));
-        }
-
-        /*[TestMethod]
-        public void UpdateTest()
-        {
-            DBUtils.CreateConnection();
-            string com = "update {0} set {1} = '{2}' where id = {3})";
-            utils.Insert(com, 1, "unittest", "unittest.name1", "test33", "21");
-
-            CreateConnection();
-            connection.Open();
-            OracleCommand actCommand = new OracleCommand("select * from unittest where name1 = 'test33'", connection);
-            OracleDataReader actDR = actCommand.ExecuteReader();
-            List<string> actElements = new List<string>();
-            while (actDR.Read())
-            {
-                actElements.Add(actDR["name1"].ToString());
-                actElements.Add(actDR["name2"].ToString());
-                actElements.Add(actDR["num1"].ToString());
-            }
-            connection.Close();
-
-            Assert.AreEqual("test33 test111 100", string.Join(" ", actElements));
-        }*/
-
-        [TestMethod]
-        public void DeleteTest()
-        {
-            DBUtils.CreateConnection();
-            string com = "insert into {0}{1} values('{2}', '{3}', {4})";
-            utils.Insert(com, 1, "unittest", "(name1, name2, num1)", "test6", "test16", "600");
-
-            CreateConnection();
-            connection.Open();
-            OracleCommand actCommand = new OracleCommand("select * from unittest where name1 = 'test6'", connection);
-            OracleDataReader actDR = actCommand.ExecuteReader();
-            List<string> actElements = new List<string>();
-            string id = "";
-            while (actDR.Read())
-            {
-                actElements.Add(actDR["name1"].ToString());
-                actElements.Add(actDR["name2"].ToString());
-                actElements.Add(actDR["num1"].ToString());
-            }
-
-            utils.Delete("delete from unittest where name1 = '{0}'", actElements[0]);
-            OracleCommand actCommand2 = new OracleCommand("select * from unittest where name1 = 'test6'", connection);
-            OracleDataReader actDR2 = actCommand2.ExecuteReader();
-            Assert.IsFalse(actDR2.Read());
-            connection.Close();
+            Assert.AreEqual(0, act);
         }
 
         [TestMethod]
-        public void ViewComboBoxDataReaderValidTest()
+        public void InsertTestWrongCommand()
         {
-            CreateConnection();
-            connection.Open();
-            OracleCommand expCommand = new OracleCommand("select view_name from user_views", connection);
-            OracleDataReader expDR = expCommand.ExecuteReader();
-            List<string> expElements = new List<string>();
-            while (expDR.Read())
-            {
-               Console.WriteLine(expDR["view_name"].ToString());
-               expElements.Add(expDR["view_name"].ToString());
-            }
-            connection.Close();
+            MainFormUtils mf = new MainFormUtils();
 
-            DBUtils.CreateConnection();
-            OracleDataReader actDR = utils.ViewComboBoxDataReader();
-            List<string> actElements = new List<string>();
-            while (actDR.Read())
-            {
-                Console.WriteLine(actDR["view_name"].ToString());
-                actElements.Add(actDR["view_name"].ToString());
-            }
+            int act = mf.Insert("insert into {0} {1} values ('{2}', {3})", 0, "dsa", "asd", "asd", "asd");
 
-            Assert.AreEqual(string.Join(" ", expElements), string.Join(" ", actElements));
+            Assert.AreEqual(0, act);
+        }
+
+        [TestMethod]
+        public void UpdateTestWrongCountOfParams()
+        {
+            MainFormUtils mf = new MainFormUtils();
+
+            int act = mf.Update("test", 1, "asr");
+
+            Assert.AreEqual(0, act);
+        }
+
+        [TestMethod]
+        public void UpdateTestWrongCommand()
+        {
+            MainFormUtils mf = new MainFormUtils();
+
+            int act = mf.Update("update goods set {0} where id = {1}", 0, "asd", "aasd", "as");
+
+            Assert.AreEqual(0, act);
+        }
+
+        [TestMethod]
+        public void DeleteTestWrongOracle()
+        {
+            MainFormUtils mf = new MainFormUtils();
+
+            int act = mf.Delete("update goods set {0} where id = {1}", "0");
+
+            Assert.AreEqual(0, act);
         }
 
         [TestMethod]

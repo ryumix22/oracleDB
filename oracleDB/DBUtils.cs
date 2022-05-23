@@ -37,7 +37,7 @@ namespace oracleDB
         {
             //string host = "192.168.56.101";
             string host = "127.0.0.1";
-            int port = 1521;
+            int port = 3333;
             string sid = "xe";
             string userName = "c##test2";
             string pass = "mypass";
@@ -72,7 +72,14 @@ namespace oracleDB
 
         public static void ExecuteCommand(string command, params object[] args)
         {
-            string com = String.Format(command, args);
+            string com;
+            try
+            {
+                com = String.Format(command, args);
+            } catch (Exception)
+            {
+                throw new ApplicationException("Wrong Command");
+            }
             using (OracleCommand cmd = new OracleCommand(com, connection))
             {
                 try
@@ -81,7 +88,7 @@ namespace oracleDB
                     {
                         connection.Open();
                     }
-                    catch (OracleException)
+                    catch (Exception)
                     {
                         throw new ApplicationException("No connection with DataBase");
                     }

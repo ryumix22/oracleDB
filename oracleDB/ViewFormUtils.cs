@@ -18,7 +18,7 @@ namespace oracleDB
             }
             catch (ApplicationException ex)
             {
-                MessageBox.Show(ex.Message);
+                //MessageBox.Show(ex.Message);
                 return null;
             }
         }

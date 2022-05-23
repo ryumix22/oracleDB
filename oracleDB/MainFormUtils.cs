@@ -21,12 +21,12 @@ namespace oracleDB
             }
             catch (ApplicationException ex)
             {
-                MessageBox.Show(ex.Message);
+                //MessageBox.Show(ex.Message);
                 return null;
             }
         }
 
-        public void Insert(string command, int currentPage, params string[] p)
+        public int Insert(string command, int currentPage, params string[] p)
         {
             switch (currentPage)
             {
@@ -34,11 +34,17 @@ namespace oracleDB
                     {
                         try
                         {
+                            if (p.Length < 4)
+                            {
+                                return 0;
+                            }
                             DBUtils.ExecuteCommand(command, p[0], p[1], p[2], p[3]);
+                            return 1;
                         }
                         catch (ApplicationException ex)
                         {
-                            MessageBox.Show(ex.Message);
+                            //MessageBox.Show(ex.Message);
+                            return 0;
                         }
                     }
                     break;
@@ -46,12 +52,18 @@ namespace oracleDB
                     {
                         try
                         {
+                            if (p.Length < 5)
+                            {
+                                return 0;
+                            }
                             DBUtils.ExecuteCommand(command,
                                 p[0], p[1], p[2], p[3], p[4]);
+                            return 1;
                         }
                         catch (ApplicationException ex)
                         {
-                            MessageBox.Show(ex.Message);
+                            //MessageBox.Show(ex.Message);
+                            return 0;
                         }
                     }
                     break;
@@ -59,11 +71,17 @@ namespace oracleDB
                     {
                         try
                         {
+                            if (p.Length < 4)
+                            {
+                                return 0;
+                            }
                             DBUtils.ExecuteCommand(command, p[0], p[1], p[2], p[3]);
+                            return 1;
                         }
                         catch (ApplicationException ex)
                         {
-                            MessageBox.Show(ex.Message);
+                            //MessageBox.Show(ex.Message);
+                            return 0;
                         }
                     }
                     break;
@@ -71,20 +89,27 @@ namespace oracleDB
                     {   
                         try
                         {
+                            if (p.Length < 4)
+                            {
+                                return 0;
+                            }
                             DBUtils.ExecuteCommand(command, p[0], p[1], p[2], p[3]);
+                            return 1;
                         }
                         catch (ApplicationException ex)
                         {
-                            MessageBox.Show(ex.Message);
+                            //MessageBox.Show(ex.Message);
+                            return 0;
                         }
                     }
                     break;
                 default:
+                    return 0;
                     break;
             }
         }
 
-        public void Update(string command, int currentPage, params string[] p)
+        public int Update(string command, int currentPage, params string[] p)
         {
             switch (currentPage)
             {
@@ -92,12 +117,18 @@ namespace oracleDB
                     {
                         try
                         {
+                            if (p.Length < 3)
+                            {
+                                return 0;
+                            }
                             DBUtils.ExecuteCommand(command, ConfigSetString(currentPage, p[0], p[1]),
                                 p[2]);
+                            return 1;
                         }
                         catch (ApplicationException ex)
                         {
-                            MessageBox.Show(ex.Message);
+                            //MessageBox.Show(ex.Message);
+                            return 0;
                         }
                     }
                     break;
@@ -105,12 +136,18 @@ namespace oracleDB
                     {
                         try
                         {
+                            if (p.Length < 4)
+                            {
+                                return 0;
+                            }
                             DBUtils.ExecuteCommand(command,
                                 ConfigSetString(currentPage, p[0], p[1], p[2]), p[3]);
+                            return 1;
                         }
                         catch (ApplicationException ex)
                         {
-                            MessageBox.Show(ex.Message);
+                            //MessageBox.Show(ex.Message);
+                            return 0;
                         }
                     }
                     break;
@@ -118,12 +155,18 @@ namespace oracleDB
                     {
                         try
                         {
+                            if (p.Length < 3)
+                            {
+                                return 0;
+                            }
                             DBUtils.ExecuteCommand(command,
                                 ConfigSetString(currentPage, p[0], p[1]), p[2]);
+                            return 1;
                         }
                         catch (ApplicationException ex)
                         {
-                            MessageBox.Show(ex.Message);
+                            //MessageBox.Show(ex.Message);
+                            return 0;
                         }
                     }
                     break;
@@ -131,29 +174,38 @@ namespace oracleDB
                     {
                         try
                         {
+                            if (p.Length < 3)
+                            {
+                                return 0;
+                            }
                             DBUtils.ExecuteCommand(command,
                                 ConfigSetString(currentPage, p[0], p[1]), p[2]);
+                            return 1;
                         }
                         catch (ApplicationException ex)
                         {
-                            MessageBox.Show(ex.Message);
+                            //MessageBox.Show(ex.Message);
+                            return 0;
                         }
                     }
                     break;
                 default:
+                    return 0;
                     break;
             }
         }
 
-        public void Delete(string command, string id)
+        public int Delete(string command, string id)
         {
             try
             {
                 DBUtils.ExecuteCommand(command, id);
+                return 1;
             }
             catch (ApplicationException ex)
             {
-                MessageBox.Show(ex.Message);
+                //MessageBox.Show(ex.Message);
+                return 0;
             }
         }
 

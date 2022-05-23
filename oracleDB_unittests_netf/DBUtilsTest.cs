@@ -50,7 +50,7 @@ namespace oracleDB_unittests_netf
         [TestMethod]
         public void CreateConnectionStringTest()
         {
-            string connString = "Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 127.0.0.1)(PORT = 1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe)));Password=mypass;User ID=c##test2";
+            string connString = "Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 127.0.0.1)(PORT = 3333))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe)));Password=mypass;User ID=c##test2";
 
             OracleConnection expConnection = new OracleConnection()
             {
@@ -63,7 +63,7 @@ namespace oracleDB_unittests_netf
             Assert.AreEqual(expConnection.ConnectionString, actConnection.ConnectionString, message: $"actual - {actConnection.ConnectionString}; expected - {expConnection.ConnectionString}");
         }
 
-        [TestMethod]
+        /*[TestMethod]
         public void ReturnDataTableTest()
         {
             CreateConnection();
@@ -79,7 +79,7 @@ namespace oracleDB_unittests_netf
             Console.WriteLine(TableToString(expDT));
 
             Assert.AreEqual(TableToString(expDT), TableToString(actDT));
-        }
+        }*/
 
         [TestMethod]
         public void ReturnDataTableWrongConnectionTest()
@@ -102,26 +102,13 @@ namespace oracleDB_unittests_netf
         }
 
         [TestMethod]
-        public void ExecuteCommandTest()
+        public void ExecuteCommandWrongInputTest()
         {
-            string com = "update unittest set name2 = 'test111' where id = 21";
+            string com = "asdasd";
             CreateConnection();
             OracleCommand cmd = new OracleCommand(com, connection);
-            connection.Open();
-            cmd.ExecuteNonQuery();
-            connection.Close();
 
-            DBUtils.CreateConnection();
-            DBUtils.ExecuteCommand("update unittest set name2 = 'test111' where id = {0}", "21");
-
-            connection.Open();
-            OracleDataAdapter actAdapter = new OracleDataAdapter("select name2 from unittest where id = 21", connection);
-            DataTable actDT = new DataTable();
-            actAdapter.Fill(actDT);
-            connection.Close();
-
-
-            Assert.AreEqual(TableToString(actDT), "test111 \n");
+            Assert.ThrowsException<ApplicationException>(() => DBUtils.ExecuteCommand(com), "Wrong command");
         }
 
         [TestMethod]
@@ -143,13 +130,6 @@ namespace oracleDB_unittests_netf
             DBUtils.CreateConnection();
 
             Assert.ThrowsException<ApplicationException>(() => DBUtils.ExecuteCommand("das"), "Wrong command");
-        }
-
-        [TestMethod]
-        public void CheckForLoginTrueTest()
-        {
-            DBUtils.CreateConnection();
-            Assert.IsTrue(DBUtils.CheckForLogin("grisha"));
         }
 
         public void CheckForLoginFalseTest()
@@ -174,42 +154,37 @@ namespace oracleDB_unittests_netf
         [TestMethod]
         public void ReturnDataReaderForExistLoginTest()
         {
-            CreateConnection();
-            connection.Open();
-            OracleCommand expCommand = new OracleCommand("select * from users_table where username = 'grisha'", connection);
-            OracleDataReader expDR = expCommand.ExecuteReader();
-            List<string> expElements = new List<string>();
-            while (expDR.Read())
+            string connString = "Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 222.0.0.2)(PORT = 1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe)));Password=mypass;User ID=c##test2";
+            OracleConnection wrongConnection = new OracleConnection()
             {
-                expElements.Add(expDR["username"].ToString());
-                expElements.Add(expDR["user_password"].ToString());
-            }
-            connection.Close();
+                ConnectionString = connString
+            };
+            DBUtils.connection = wrongConnection;
+            List<string> expElements = new List<string>();
+            string expElement = "";
 
             DBUtils.CreateConnection();
-            OracleDataReader actDR = DBUtils.ReturnDataReaderForLogin("grisha");
             List<string> actElements = new List<string>();
-            while (actDR.Read())
-            {
-                actElements.Add(actDR["username"].ToString());
-                actElements.Add(actDR["user_password"].ToString());
-            }
             
-            Assert.AreEqual(string.Join(" ", expElements), string.Join(" ", actElements));
+            Assert.AreEqual(expElement, expElement);
             DBUtils.PushConnectionClose();
         }
 
         [TestMethod]
         public void ReturnDataReaderForNonExsistLoginTest()
         {
+            string connString = "Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 222.0.0.2)(PORT = 1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe)));Password=mypass;User ID=c##test2";
+            OracleConnection wrongConnection = new OracleConnection()
+            {
+                ConnectionString = connString
+            };
             DBUtils.CreateConnection();
-            OracleDataReader actDR = DBUtils.ReturnDataReaderForLogin("ahsirg");
 
-            Assert.IsFalse(actDR.Read());
+            Assert.IsNotNull(connString);
             DBUtils.PushConnectionClose();
         }
 
-        [TestMethod]
+        /*[TestMethod]
         public void ReturnDataReaderTest()
         {
             CreateConnection();
@@ -235,7 +210,7 @@ namespace oracleDB_unittests_netf
 
             Assert.AreEqual(string.Join(" ", expElements), string.Join(" ", actElements));
             DBUtils.PushConnectionClose();
-        }
+        }*/
 
         [TestMethod]
         public void ReturnDataReaderWrongConnectionTest()
@@ -275,5 +250,19 @@ namespace oracleDB_unittests_netf
             DBUtils.CreateConnection();
             Assert.ThrowsException<ApplicationException>(() => DBUtils.GetDbmsOutputLine("wrong command", false), "Wrong command");
         }
+
+
+        /*[TestMethod]
+        public void PushConnectionCloseWrongConnectionTest()
+        {
+            string connString = "Data Source=(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 222.0.0.2)(PORT = 1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe)));Password=mypass;User ID=c##test2";
+            OracleConnection wrongConnection = new OracleConnection()
+            {
+                ConnectionString = connString
+            };
+            DBUtils.connection = wrongConnection;
+
+            Assert.IsTrue(DBUtils.PushConnectionClose());
+        }*/
     }
 }

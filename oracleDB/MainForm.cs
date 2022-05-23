@@ -138,7 +138,12 @@ namespace oracleDB
                             MessageBox.Show("Fill all fields");
                             return;
                         }
-                        utils.Insert("insert into {0} {1} values ('{2}', {3})", 0, pagesName[CurrentTabPage], tableFields[CurrentTabPage], nameTextBox.Text, priorityTextBox.Text);
+                        int a = utils.Insert("insert into {0} {1} values ('{2}', {3})", 0, pagesName[CurrentTabPage], tableFields[CurrentTabPage], nameTextBox.Text, priorityTextBox.Text);
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         nameTextBox.Clear();
                         priorityTextBox.Clear();
@@ -159,7 +164,12 @@ namespace oracleDB
                             MessageBox.Show("Size must be more then 1");
                             return;
                         }
-                        utils.Insert("insert into {0} {1} values ('{2}', {3}, to_date('{4}', 'DD-MM-YYYY'))", 1, pagesName[CurrentTabPage], tableFields[CurrentTabPage], salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text);
+                        int a = utils.Insert("insert into {0} {1} values ('{2}', {3}, to_date('{4}', 'DD-MM-YYYY'))", 1, pagesName[CurrentTabPage], tableFields[CurrentTabPage], salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text);
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         salesGoodId.Clear();
                         salesGoodCount.Clear();
@@ -174,8 +184,12 @@ namespace oracleDB
                             MessageBox.Show("Fill all fields");
                             return;
                         }
-                        utils.Insert("insert into {0} {1} values ('{2}', {3})", 2,
-                                pagesName[CurrentTabPage], tableFields[CurrentTabPage], ware1GoodId.Text, ware1GoodCount.Text);
+                        int a = utils.Insert("insert into {0} {1} values ('{2}', {3})", 2, pagesName[CurrentTabPage], tableFields[CurrentTabPage], ware1GoodId.Text, ware1GoodCount.Text);
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         ware1GoodId.Clear();
                         ware1Id.Clear();
@@ -189,7 +203,12 @@ namespace oracleDB
                             MessageBox.Show("Fill all fields");
                             return;
                         }
-                        utils.Insert("insert into {0} {1} values ('{2}', {3})", 3, pagesName[CurrentTabPage], tableFields[CurrentTabPage], ware2GoodId.Text, ware2GoodCount.Text);
+                        int a = utils.Insert("insert into {0} {1} values ('{2}', {3})", 3, pagesName[CurrentTabPage], tableFields[CurrentTabPage], ware2GoodId.Text, ware2GoodCount.Text);  
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         ware2GoodId.Clear();
                         ware2Id.Clear();
@@ -217,7 +236,12 @@ namespace oracleDB
                             MessageBox.Show("Enter ID");
                             return;
                         }
-                        utils.Update("update goods set {0} where id = {1}", 0, nameTextBox.Text, priorityTextBox.Text, idTextBox.Text);
+                        int a = utils.Update("update goods set {0} where id = {1}", 0, nameTextBox.Text, priorityTextBox.Text, idTextBox.Text);
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         nameTextBox.Clear();
                         priorityTextBox.Clear();
@@ -243,7 +267,12 @@ namespace oracleDB
                             MessageBox.Show("Size must be more then 1");
                             return;
                         }
-                        utils.Update("update sales set {0} where id = {1}", 1, salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text, salesId.Text);
+                        int a = utils.Update("update sales set {0} where id = {1}", 1, salesGoodId.Text, salesGoodCount.Text, salesCreateDate.Text, salesId.Text);
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         salesGoodId.Clear();
                         salesGoodCount.Clear();
@@ -263,7 +292,12 @@ namespace oracleDB
                             MessageBox.Show("Enter ID");
                             return;
                         }
-                        utils.Update("update warehouse1 set {0} where id = {1}", 2, ware1GoodId.Text, ware1GoodCount.Text, ware1Id.Text);
+                        int a = utils.Update("update warehouse1 set {0} where id = {1}", 2, ware1GoodId.Text, ware1GoodCount.Text, ware1Id.Text);
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         ware1GoodId.Clear();
                         ware1GoodCount.Clear();
@@ -282,7 +316,12 @@ namespace oracleDB
                             MessageBox.Show("Enter ID");
                             return;
                         }
-                        utils.Update("update warehouse2 set {0} where id = {1}", 3, ware2GoodId.Text, ware2GoodCount.Text, ware2Id.Text);
+                        int a = utils.Update("update warehouse2 set {0} where id = {1}", 3, ware2GoodId.Text, ware2GoodCount.Text, ware2Id.Text);
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         ware2GoodId.Clear();
                         ware2Id.Clear();
@@ -300,7 +339,12 @@ namespace oracleDB
             {
                 case 0:
                     {
-                        utils.Delete("delete from goods whedasdre id = {0}", idTextBox.Text);
+                        int a = utils.Delete("delete from goods whedasdre id = {0}", idTextBox.Text);
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         nameTextBox.Clear();
                         priorityTextBox.Clear();
@@ -309,7 +353,12 @@ namespace oracleDB
                     break;
                 case 1:
                     {
-                        utils.Delete("delete from sales where id = {0}", salesId.Text);
+                        int a = utils.Delete("delete from sales where id = {0}", salesId.Text);
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         salesGoodId.Clear();
                         salesGoodCount.Clear();
@@ -319,7 +368,12 @@ namespace oracleDB
                     break;
                 case 2:
                     {
-                        utils.Delete("delete from warehouse1 where id = {0}", ware1Id.Text);
+                        int a = utils.Delete("delete from warehouse1 where id = {0}", ware1Id.Text);
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         ware1GoodId.Clear();
                         ware1Id.Clear();
@@ -328,7 +382,12 @@ namespace oracleDB
                     break;
                 case 3:
                     {
-                        utils.Delete("delete from warehouse2 where id = {0}", ware2Id.Text);
+                        int a = utils.Delete("delete from warehouse2 where id = {0}", ware2Id.Text);
+                        if (a == 0)
+                        {
+                            MessageBox.Show("Wrong Connection");
+                            return;
+                        }
                         MainFormUpdate();
                         ware2GoodId.Clear();
                         ware2Id.Clear();

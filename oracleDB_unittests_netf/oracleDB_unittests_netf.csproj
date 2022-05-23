@@ -90,6 +90,7 @@
     <Compile Include="CryptoUnitTest.cs" />
     <Compile Include="DBUtilsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewFormUtilsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

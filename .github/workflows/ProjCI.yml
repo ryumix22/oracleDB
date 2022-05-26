@@ -35,4 +35,4 @@ jobs:
       - name: MSTest
         working-directory: ./oracleDB_unittests_netf/bin/Debug
         shell: powershell
-        run: '& "$(vswhere -property installationPath)\Common7\IDE\MSTest.exe" /platform:x86 /testcontainer:oracleDB_unittests_netf.dll /resultsfile:TestResults.trx'
+        run: vstest.console.exe oracleDB_unittests_netf.dll /Platform:x64

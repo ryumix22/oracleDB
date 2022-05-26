@@ -30,5 +30,8 @@ jobs:
         run: nuget restore oracleDB.sln
         
       - name: Build oracle unit tests
-        working-directory: ./oracleDB_unittests_netf
-        run: mstest
+        run: msbuild ./oracleDB_unittests_netf/oracleDB_unittests_netf.csproj
+        
+      - name: MSTest
+        shell: powershell
+        run: '& "$(vswhere -property installationPath)\Common7\IDE\MSTest.exe" /testcontainer:./oracleDB_unittests_netf/bin/debug/oracleDB_unittests_netf.dll /resultsfile:TestResults.trx'

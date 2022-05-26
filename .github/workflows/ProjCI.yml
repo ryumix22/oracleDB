@@ -32,6 +32,9 @@ jobs:
       - name: Build oracle unit tests
         run: msbuild ./oracleDB_unittests_netf/oracleDB_unittests_netf.csproj
         
+      - name: Setup VSTest.console.exe
+        uses: darenm/Setup-VSTest@v1
+        
       - name: MSTest
         working-directory: ./oracleDB_unittests_netf/bin/Debug
         shell: powershell

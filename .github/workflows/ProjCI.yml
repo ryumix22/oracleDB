@@ -30,7 +30,7 @@ jobs:
         run: nuget restore oracleDB.sln
         
       - name: Build oracle unit tests
-        run: msbuild ./oracleDB_unittests_netf/oracleDB_unittests_netf.csproj
+        run: dotnet ./oracleDB_unittests_netf/oracleDB_unittests_netf.csproj
         
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v1

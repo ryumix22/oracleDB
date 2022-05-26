@@ -31,3 +31,9 @@ jobs:
         
       - name: Build oracle unit tests
         run: msbuild ./oracleDB_unittests_netf/oracleDB_unittests_netf.csproj
+        
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v1
+        if: always()
+        with:
+            dotnet-trx: "test-results/**/*.xml"

@@ -30,4 +30,5 @@ jobs:
         run: nuget restore oracleDB.sln
         
       - name: Build oracle unit tests
-        run: msbuild ./oracleDB_unittests_netf/oracleDB_unittests_netf.csproj
+        working-directory: ./oracleDB_unittests_netf
+        run: mstest
